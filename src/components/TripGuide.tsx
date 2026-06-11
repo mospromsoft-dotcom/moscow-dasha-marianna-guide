@@ -98,11 +98,23 @@ function classNames(...values: Array<string | false | null | undefined>) {
 }
 
 function renderRichTextParts(text: string) {
-  return text.split(/(<s>.*?<\/s>)/g).map((part, index) => {
+  return text.split(/(<s>.*?<\/s>|<code>.*?<\/code>)/g).map((part, index) => {
     const strikeMatch = part.match(/^<s>(.*)<\/s>$/);
+    const codeMatch = part.match(/^<code>(.*)<\/code>$/);
 
     if (strikeMatch) {
       return <s key={`${part}-${index}`}>{strikeMatch[1]}</s>;
+    }
+
+    if (codeMatch) {
+      return (
+        <code
+          key={`${part}-${index}`}
+          className="break-words font-mono text-[0.82em] leading-5 text-[var(--accent-soft)]"
+        >
+          {codeMatch[1]}
+        </code>
+      );
     }
 
     return <span key={`${part}-${index}`}>{part}</span>;
