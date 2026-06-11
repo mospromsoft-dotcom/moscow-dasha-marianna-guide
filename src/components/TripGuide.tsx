@@ -35,6 +35,7 @@ import {
   safetyRules,
   tripDays,
   weatherRows,
+  type CommutePlan,
   type PriceLevel,
   type PriceItem,
   type TripDay,
@@ -115,8 +116,12 @@ function getDefaultDayId() {
   return tripDays[0].id;
 }
 
-function routeMessage(day: TripDay) {
-  return `Все ок. Мы на маршруте: ${day.date}, ${day.title}. Активный план отмечен в сайте. Контрольное время: ${day.timeRange}. Если меняем маршрут из-за погоды, напишем отдельно.`;
+function routeMessage(day: TripDay, commute: CommutePlan, meetingDone: boolean) {
+  const meetingStatus = meetingDone
+    ? "Встреча у Марьино подтверждена."
+    : `Встреча у Марьино запланирована на ${commute.meetTime}.`;
+
+  return `Все ок. ${meetingStatus} Мы на маршруте: ${day.date}, ${day.title}. Активный план отмечен в сайте. Контрольное время: ${day.timeRange}. Если меняем маршрут из-за погоды, напишем отдельно.`;
 }
 
 function yandexEmbedFromUrl(route: string) {
@@ -328,6 +333,10 @@ export default function TripGuide() {
     () => makeActiveRoute(selectedDay, showPlanB, done),
     [selectedDay, showPlanB, done],
   );
+  const activeCommute =
+    showPlanB && selectedDay.planBRoute.commute ? selectedDay.planBRoute.commute : selectedDay.commute;
+  const meetingKey = `${selectedDay.id}-${activeRoute.mode}-maryino-meeting`;
+  const meetingDone = Boolean(done[meetingKey]);
   const completedCount = activeRoute.steps.filter((step) => done[step.id]).length;
   const progress = Math.round((completedCount / activeRoute.steps.length) * 100);
   const filteredPrices =
@@ -464,6 +473,17 @@ export default function TripGuide() {
             </div>
           </section>
 
+          <CommutePanel
+            commute={activeCommute}
+            meetingDone={meetingDone}
+            onToggleMeeting={() =>
+              setDone((current) => ({
+                ...current,
+                [meetingKey]: !current[meetingKey],
+              }))
+            }
+          />
+
           <section id="weather" className="space-y-4">
             <SectionTitle
               icon={<CloudSun className="h-5 w-5" />}
@@ -548,6 +568,8 @@ export default function TripGuide() {
           <ParentPanel
             day={selectedDay}
             activeRoute={activeRoute}
+            commute={activeCommute}
+            meetingDone={meetingDone}
             open={showParentPanel}
             onToggle={() => setShowParentPanel((value) => !value)}
           />
@@ -791,6 +813,84 @@ function RouteStepCard({
   );
 }
 
+function CommutePanel({
+  commute,
+  meetingDone,
+  onToggleMeeting,
+}: {
+  commute: CommutePlan;
+  meetingDone: boolean;
+  onToggleMeeting: () => void;
+}) {
+  return (
+    <section id="commute" className="space-y-4">
+      <SectionTitle
+        icon={<MapPin className="h-5 w-5" />}
+        label="Как добраться"
+        title="Старт от Марьино"
+        right={meetingDone ? "встреча отмечена" : `встреча ${commute.meetTime}`}
+      />
+      <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm sm:p-5">
+        <div className="grid gap-4 md:grid-cols-[1fr_1fr]">
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 rounded-xl bg-slate-50 p-3">
+              <Clock className="mt-0.5 h-5 w-5 shrink-0 text-[var(--accent-dark)]" />
+              <div>
+                <div className="font-semibold text-slate-950">{commute.meetingPoint}</div>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  Встретиться в {commute.meetTime}, чтобы быть на первой точке к {commute.targetTime}.
+                  Дорога: {commute.travelTime}.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {commute.outfitTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-semibold text-[var(--accent-dark)]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="rounded-xl border border-black/10 p-3 text-sm leading-6 text-slate-600">
+              <div className="mb-1 font-semibold text-slate-950">Маршрут</div>
+              {commute.routeText}
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <a
+                href={commute.routeUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--accent-dark)] px-4 text-sm font-semibold text-white transition hover:brightness-110"
+              >
+                <Navigation className="h-4 w-4" />
+                Открыть маршрут
+              </a>
+              <button
+                type="button"
+                onClick={onToggleMeeting}
+                aria-pressed={meetingDone}
+                className={classNames(
+                  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition",
+                  meetingDone
+                    ? "border-transparent bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200"
+                    : "border-black/10 text-slate-700 hover:border-[var(--accent)] hover:text-[var(--accent-dark)]",
+                )}
+              >
+                {meetingDone ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
+                {meetingDone ? "Встретились" : "Встретились"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function MapPanel({
   day,
   activeRoute,
@@ -849,11 +949,15 @@ function MapPanel({
 function ParentPanel({
   day,
   activeRoute,
+  commute,
+  meetingDone,
   open,
   onToggle,
 }: {
   day: TripDay;
   activeRoute: ActiveRoute;
+  commute: CommutePlan;
+  meetingDone: boolean;
   open: boolean;
   onToggle: () => void;
 }) {
@@ -901,10 +1005,17 @@ function ParentPanel({
               <span className="font-semibold text-slate-950">{activeRoute.label}</span>.
             </p>
             <p className="mt-2">Контрольное время: {day.timeRange}. Цены, погоду и билеты проверить утром.</p>
+            <p className="mt-2">
+              Встреча у Марьино:{" "}
+              <span className="font-semibold text-slate-950">
+                {meetingDone ? "подтверждена" : `ждем отметку к ${commute.meetTime}`}
+              </span>
+              .
+            </p>
           </div>
           <div className="rounded-xl bg-slate-50 p-3">
             <div className="mb-2 font-semibold text-slate-950">Сообщение родителям</div>
-            {routeMessage(day)}
+            {routeMessage(day, commute, meetingDone)}
           </div>
           {day.adultNote ? (
             <div className="rounded-xl bg-rose-50 p-3 font-semibold text-rose-800">{day.adultNote}</div>
