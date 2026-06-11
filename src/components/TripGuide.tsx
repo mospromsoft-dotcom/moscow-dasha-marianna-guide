@@ -913,7 +913,7 @@ function CommutePanel({
           </div>
           <div className="space-y-3">
             <div className="rounded-xl border border-black/10 p-3 text-sm leading-6 text-slate-600">
-              <div className="mb-1 font-semibold text-slate-950">Маршрут</div>
+              <div className="mb-1 font-semibold text-slate-950">Маршрут до первой точки</div>
               {commute.routeText}
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
@@ -933,7 +933,7 @@ function CommutePanel({
                 className={classNames(
                   "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition",
                   meetingDone
-                    ? "border-transparent bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200"
+                    ? "border-transparent bg-[var(--accent-soft)] text-[var(--accent-dark)] ring-1 ring-[var(--accent)]"
                     : "border-black/10 text-slate-700 hover:border-[var(--accent)] hover:text-[var(--accent-dark)]",
                 )}
               >

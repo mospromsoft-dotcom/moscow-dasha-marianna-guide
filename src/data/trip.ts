@@ -89,7 +89,7 @@ const yandexEmbed = (route: string) =>
   `https://yandex.ru/map-widget/v1/?${route.split("?")[1]}`;
 
 const maryinoPoint = "55.6507,37.7436";
-const maryinoMeetingPoint = "метро Марьино, у турникетов перед выходом в город";
+const maryinoMeetingPoint = "метро Марьино, в центре зала";
 const yandexTransitFromMaryino = (destination: string) =>
   `https://yandex.ru/maps/?rtext=${maryinoPoint}~${destination}&rtt=mt`;
 
