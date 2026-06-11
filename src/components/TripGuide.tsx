@@ -26,6 +26,7 @@ import {
   Ticket,
   Users,
   Wallet,
+  X,
 } from "lucide-react";
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -91,6 +92,76 @@ type LiveWeatherRow = {
   date: string;
   summary: string;
   updatedAt: string;
+};
+
+type StepBrochure = {
+  src: string;
+  title: string;
+};
+
+const brochure = (file: string, title: string): StepBrochure => ({
+  src: `/brochures/${file}`,
+  title,
+});
+
+const stepBrochures: Record<string, StepBrochure> = {
+  "kitay-gorod": brochure("kitay-gorod-brochure.webp", "Китай-город"),
+  zaryadye: brochure("zaryadye-park-brochure.webp", "Парк Зарядье"),
+  "floating-bridge": brochure("zaryadye-floating-bridge-brochure-v1.webp", "Парящий мост"),
+  "red-square": brochure("red-square-brochure.webp", "Красная площадь"),
+  gum: brochure("gum-brochure.webp", "ГУМ"),
+  nikolskaya: brochure("nikolskaya-brochure.webp", "Никольская"),
+  "b15-zaryadye": brochure("zaryadye-park-brochure.webp", "Парк Зарядье"),
+  "b15-bridge": brochure("zaryadye-floating-bridge-brochure-v1.webp", "Парящий мост"),
+  "b15-gum": brochure("gum-brochure.webp", "ГУМ"),
+  "vdnh-gate": brochure("vdnh-gate-brochure.webp", "ВДНХ"),
+  "friendship-fountain": brochure("vdnh-fountains-brochure.webp", "Фонтаны ВДНХ"),
+  "smile-park": brochure("smile-park-brochure.webp", "Smile Park"),
+  "moscow-sun": brochure("moscow-sun-brochure.webp", "Солнце Москвы"),
+  "moscow-city-evening": brochure("moscow-city-brochure.webp", "Москва-Сити"),
+  "b16-vdnh-gate": brochure("vdnh-gate-brochure.webp", "ВДНХ"),
+  "b16-moskvarium": brochure("moskvarium-brochure.webp", "Москвариум"),
+  "b16-sun-optional": brochure("moscow-sun-brochure.webp", "Солнце Москвы"),
+  "gorky-park": brochure("gorky-park-brochure.webp", "Парк Горького"),
+  neskuchny: brochure("neskuchny-garden-brochure.webp", "Нескучный сад"),
+  "sparrow-hills": brochure("sparrow-hills-brochure.webp", "Воробьевы горы"),
+  "cable-car": brochure("cable-car-brochure.webp", "Канатная дорога"),
+  "b17-sparrow": brochure("sparrow-hills-brochure.webp", "Воробьевы горы"),
+  "b17-illusions": brochure("illusions-brochure.webp", "Музей иллюзий"),
+  nebo: brochure("nebo-brochure.webp", "НЕБО"),
+  afimall: brochure("afimall-brochure.webp", "Афимолл"),
+  "city-short": brochure("moscow-city-brochure.webp", "Москва-Сити"),
+  "b18-nebo": brochure("nebo-brochure.webp", "НЕБО"),
+  "b18-afimall": brochure("afimall-brochure.webp", "Афимолл"),
+  skazka: brochure("skazka-brochure.webp", "Парк Сказка"),
+  "dream-island": brochure("dream-island-brochure.webp", "Dream Island"),
+  "food-break-final": brochure("dream-island-brochure.webp", "Dream Island"),
+  "b19-dream-arrive": brochure("dream-island-brochure.webp", "Dream Island"),
+  "b19-promenade": brochure("dream-island-brochure.webp", "Dream Island"),
+  "b19-game-food": brochure("dream-island-brochure.webp", "Dream Island"),
+};
+
+const heroTitleArt: Record<string, { src: string; alt: string }> = {
+  "day-15": {
+    src: "/hero-titles/zaryadye-title.webp",
+    alt: "Зарядье и Парящий мост. центр без суеты",
+  },
+  "day-16": {
+    src: "/hero-titles/vdnh-city-title.webp",
+    alt: "ВДНХ и Москва-Сити. фонтаны днем, огни вечером",
+  },
+  "day-17": {
+    src: "/hero-titles/gorky-sparrow-title.webp",
+    alt: "Парк Горького и Воробьевы горы. река, воздух и канатка",
+  },
+  "day-18": {
+    src: "/hero-titles/nebo-afimall-title.webp",
+    alt: "НЕБО и Афимолл. смотрим по погоде",
+  },
+  "day-19": {
+    src: "/hero-titles/skazka-dream-title.webp",
+    alt: "Сказка или Dream Island. финальный выбор",
+  },
 };
 
 function classNames(...values: Array<string | false | null | undefined>) {
@@ -327,6 +398,7 @@ export default function TripGuide() {
   const [liveWeather, setLiveWeather] = useState<Record<string, LiveWeatherRow>>({});
   const [weatherUpdatedAt, setWeatherUpdatedAt] = useState<string | null>(null);
   const [weatherError, setWeatherError] = useState<string | null>(null);
+  const [selectedBrochure, setSelectedBrochure] = useState<StepBrochure | null>(null);
 
   useEffect(() => {
     window.localStorage.setItem(activeDayStorageKey, selectedDayId);
@@ -498,6 +570,7 @@ export default function TripGuide() {
                   step={step}
                   index={index}
                   done={Boolean(done[step.id])}
+                  onOpenBrochure={setSelectedBrochure}
                   onToggle={() =>
                     setDone((current) => ({
                       ...current,
@@ -692,6 +765,7 @@ export default function TripGuide() {
 
       <AttributionFooter />
       <MobileNav />
+      <BrochureModal brochure={selectedBrochure} onClose={() => setSelectedBrochure(null)} />
     </main>
   );
 }
@@ -713,6 +787,8 @@ function Hero({
   showPlanB: boolean;
   onWeatherMode: (badWeather: boolean) => void;
 }) {
+  const titleArt = heroTitleArt[day.id];
+
   return (
     <header className="relative min-h-[560px] overflow-hidden bg-[var(--accent-dark)] text-white">
       <div className="absolute inset-0 bg-slate-900">
@@ -741,15 +817,29 @@ function Hero({
           <p className="text-sm font-semibold uppercase tracking-wide text-[var(--accent-soft)]">
             {day.weekday}, {day.date}
           </p>
-          <h1
-            className="mt-3 max-w-4xl bg-clip-text text-4xl font-semibold leading-[1.05] text-transparent sm:text-5xl lg:text-6xl"
-            style={{
-              backgroundImage: `linear-gradient(90deg, #ffffff 0%, ${day.accentSoft} 50%, ${day.accent} 100%)`,
-              textShadow: "0 16px 40px rgba(0,0,0,0.32)",
-            }}
-          >
-            {day.title}
-          </h1>
+          {titleArt ? (
+            <h1 className="mt-3 h-[160px] sm:h-[220px] lg:h-[240px]">
+              <span className="sr-only">{day.title}</span>
+              <img
+                src={titleArt.src}
+                alt={titleArt.alt}
+                className="h-full w-full max-w-4xl object-contain object-left drop-shadow-[0_18px_34px_rgba(0,0,0,0.38)]"
+                onError={(event) => {
+                  event.currentTarget.style.display = "none";
+                }}
+              />
+            </h1>
+          ) : (
+            <h1
+              className="mt-3 max-w-4xl bg-clip-text text-4xl font-semibold leading-[1.05] text-transparent sm:text-5xl lg:text-6xl"
+              style={{
+                backgroundImage: `linear-gradient(90deg, #ffffff 0%, ${day.accentSoft} 50%, ${day.accent} 100%)`,
+                textShadow: "0 16px 40px rgba(0,0,0,0.32)",
+              }}
+            >
+              {day.title}
+            </h1>
+          )}
           <RichText text={day.subtitle} className="mt-5 max-w-3xl space-y-3 text-sm leading-6 text-white/86 sm:text-base sm:leading-7" />
         </div>
 
@@ -856,21 +946,45 @@ function RouteStepCard({
   step,
   index,
   done,
+  onOpenBrochure,
   onToggle,
 }: {
   day: TripDay;
   step: TripStep;
   index: number;
   done: boolean;
+  onOpenBrochure: (brochure: StepBrochure) => void;
   onToggle: () => void;
 }) {
   const image = step.image ?? day.heroImage;
   const imageAlt = step.imageAlt ?? step.title;
+  const stepBrochure = stepBrochures[step.id];
 
   return (
     <article className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm sm:p-5">
       <div className="grid gap-4 md:grid-cols-[168px_1fr]">
         <div className="relative min-h-36 overflow-hidden rounded-xl bg-slate-100 md:min-h-full">
+          {stepBrochure ? (
+            <button
+              type="button"
+              onClick={() => onOpenBrochure(stepBrochure)}
+              className="group block h-full min-h-36 w-full text-left"
+              aria-label={`Открыть буклет: ${stepBrochure.title}`}
+            >
+              <img
+                src={image}
+                alt={imageAlt}
+                className="h-full min-h-36 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                loading="lazy"
+                onError={(event) => {
+                  event.currentTarget.style.display = "none";
+                }}
+              />
+              <span className="absolute bottom-3 left-3 rounded-full bg-white/92 px-2.5 py-1 text-xs font-semibold text-[var(--accent-dark)] shadow-sm ring-1 ring-white/70">
+                Буклет
+              </span>
+            </button>
+          ) : (
           <img
             src={image}
             alt={imageAlt}
@@ -880,6 +994,7 @@ function RouteStepCard({
               event.currentTarget.style.display = "none";
             }}
           />
+          )}
           <div className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-slate-800 shadow-sm">
             {step.time}
           </div>
@@ -1296,6 +1411,60 @@ function MobileNav() {
         ))}
       </div>
     </nav>
+  );
+}
+
+function BrochureModal({
+  brochure,
+  onClose,
+}: {
+  brochure: StepBrochure | null;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    if (!brochure) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [brochure, onClose]);
+
+  if (!brochure) {
+    return null;
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/82 p-3 backdrop-blur-sm sm:p-5"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Буклет: ${brochure.title}`}
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-6xl overflow-hidden rounded-2xl bg-white p-2 shadow-2xl sm:p-3"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/94 text-slate-800 shadow-lg ring-1 ring-black/10 transition hover:bg-[var(--accent-soft)] hover:text-[var(--accent-dark)]"
+          aria-label="Закрыть буклет"
+        >
+          <X className="h-5 w-5" />
+        </button>
+        <img
+          src={brochure.src}
+          alt={`Буклет: ${brochure.title}`}
+          className="max-h-[86vh] w-full rounded-xl object-contain"
+        />
+      </div>
+    </div>
   );
 }
 
