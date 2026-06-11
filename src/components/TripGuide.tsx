@@ -648,25 +648,40 @@ function Hero({
   onWeatherMode: (badWeather: boolean) => void;
 }) {
   return (
-    <header className="relative min-h-[560px] overflow-hidden bg-slate-950 text-white">
+    <header className="relative min-h-[560px] overflow-hidden bg-[var(--accent-dark)] text-white">
       <div className="absolute inset-0 bg-slate-900">
         <img
           src={day.heroImage}
           alt={day.imageAlt}
-          className="h-full w-full object-cover opacity-70"
+          className="h-full w-full object-cover opacity-68 saturate-[1.08]"
           onError={(event) => {
             event.currentTarget.style.display = "none";
           }}
         />
       </div>
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.35),rgba(15,23,42,0.92))]" />
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `radial-gradient(circle at 16% 18%, ${day.accent}82 0, transparent 34%), linear-gradient(180deg, rgba(15,23,42,0.2), rgba(15,23,42,0.9))`,
+        }}
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 h-40"
+        style={{ background: `linear-gradient(0deg, ${day.accentDark}cc 0%, transparent 100%)` }}
+      />
 
       <div className="relative mx-auto flex min-h-[560px] max-w-7xl flex-col justify-center px-4 py-10">
         <div className="max-w-4xl">
-          <p className="text-sm font-semibold uppercase text-white/75">
+          <p className="text-sm font-semibold uppercase tracking-wide text-[var(--accent-soft)]">
             {day.weekday}, {day.date}
           </p>
-          <h1 className="mt-3 max-w-4xl text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-6xl">
+          <h1
+            className="mt-3 max-w-4xl bg-clip-text text-4xl font-semibold leading-[1.05] text-transparent sm:text-5xl lg:text-6xl"
+            style={{
+              backgroundImage: `linear-gradient(90deg, #ffffff 0%, ${day.accentSoft} 50%, ${day.accent} 100%)`,
+              textShadow: "0 16px 40px rgba(0,0,0,0.32)",
+            }}
+          >
             {day.title}
           </h1>
           <RichText text={day.subtitle} className="mt-5 max-w-3xl space-y-3 text-sm leading-6 text-white/86 sm:text-base sm:leading-7" />
@@ -688,19 +703,21 @@ function Hero({
             href={activeRoute.routeUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-white px-5 font-semibold text-slate-950 shadow-lg transition hover:bg-slate-100"
+            className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-[var(--accent-soft)] px-5 font-semibold text-[var(--accent-dark)] shadow-lg shadow-black/20 transition hover:brightness-105"
           >
             <Navigation className="h-5 w-5" />
             Открыть маршрут
           </a>
-          <div className="inline-flex flex-wrap gap-2 rounded-2xl border border-white/20 bg-white/12 p-1 backdrop-blur">
+          <div className="inline-flex flex-wrap gap-2 rounded-2xl border border-[var(--accent)]/45 bg-white/12 p-1 backdrop-blur">
             <button
               type="button"
               onClick={() => onWeatherMode(false)}
               aria-pressed={!showPlanB}
               className={classNames(
                 "inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition",
-                !showPlanB ? "bg-white text-slate-950 shadow-lg" : "text-white hover:bg-white/18",
+                !showPlanB
+                  ? "bg-[var(--accent)] text-white shadow-lg shadow-black/20"
+                  : "text-white hover:bg-[var(--accent)]/30",
               )}
             >
               <Sun className="h-5 w-5" />
@@ -712,7 +729,9 @@ function Hero({
               aria-pressed={showPlanB}
               className={classNames(
                 "inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition",
-                showPlanB ? "bg-white text-slate-950 shadow-lg" : "text-white hover:bg-white/18",
+                showPlanB
+                  ? "bg-[var(--accent)] text-white shadow-lg shadow-black/20"
+                  : "text-white hover:bg-[var(--accent)]/30",
               )}
             >
               <CloudRain className="h-5 w-5" />
@@ -735,8 +754,8 @@ function HeroMetric({
   value: string;
 }) {
   return (
-    <div className="min-h-[116px] rounded-2xl border border-white/18 bg-white/12 p-4 backdrop-blur">
-      <div className="flex items-center gap-2 text-sm font-semibold text-white/72">
+    <div className="min-h-[116px] rounded-2xl border border-[var(--accent)]/35 bg-white/14 p-4 shadow-lg shadow-black/10 backdrop-blur">
+      <div className="flex items-center gap-2 text-sm font-semibold text-[var(--accent-soft)]">
         {icon}
         {label}
       </div>
