@@ -637,6 +637,7 @@ export default function TripGuide() {
         </aside>
       </div>
 
+      <AttributionFooter />
       <MobileNav />
     </main>
   );
@@ -1253,7 +1254,7 @@ export function AttributionFooter() {
       </div>
       <a
         href="#"
-        className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-xl border border-black/10 px-4 font-semibold text-slate-700 hover:border-[var(--accent)]"
+        className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-xl border border-transparent bg-[var(--accent-dark)] px-4 font-semibold text-white shadow-sm transition hover:brightness-110"
       >
         <Home className="h-4 w-4" />
         Наверх

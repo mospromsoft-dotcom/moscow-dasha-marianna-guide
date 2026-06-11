@@ -1,10 +1,5 @@
-import TripGuide, { AttributionFooter } from "@/components/TripGuide";
+import TripGuide from "@/components/TripGuide";
 
 export default function Home() {
-  return (
-    <>
-      <TripGuide />
-      <AttributionFooter />
-    </>
-  );
+  return <TripGuide />;
 }
