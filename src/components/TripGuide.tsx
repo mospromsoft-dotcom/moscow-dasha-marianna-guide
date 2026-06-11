@@ -380,8 +380,6 @@ export default function TripGuide() {
 
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 pb-28 lg:grid-cols-[minmax(0,1fr)_390px]">
         <div className="space-y-6">
-          <QuickPanel day={selectedDay} activeRoute={activeRoute} showPlanB={showPlanB} />
-
           <section id="route" className="space-y-4">
             <SectionTitle
               icon={<ListChecks className="h-5 w-5" />}
@@ -674,57 +672,6 @@ function HeroMetric({
       </div>
       <div className="mt-3 text-lg font-semibold leading-6">{value}</div>
     </div>
-  );
-}
-
-function QuickPanel({
-  day,
-  activeRoute,
-  showPlanB,
-}: {
-  day: TripDay;
-  activeRoute: ActiveRoute;
-  showPlanB: boolean;
-}) {
-  return (
-    <section className="grid gap-4 md:grid-cols-[1fr_1fr]">
-      <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
-        <div className="flex items-center gap-2 text-sm font-semibold text-[var(--accent-dark)]">
-          <Backpack className="h-4 w-4" />
-          Перед выходом
-        </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {day.takeWithYou.map((item) => (
-            <span
-              key={item}
-              className="rounded-full bg-[var(--accent-soft)] px-3 py-2 text-sm font-semibold text-slate-800"
-            >
-              {item}
-            </span>
-          ))}
-        </div>
-      </div>
-      <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
-        <div className="flex items-center gap-2 text-sm font-semibold text-[var(--accent-dark)]">
-          {showPlanB ? <CloudRain className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-          {showPlanB ? "Маршрут на плохую погоду" : "Маршрут на хорошую погоду"}
-        </div>
-        <RichText
-          text={showPlanB ? activeRoute.description : day.subtitle}
-          className="mt-3 space-y-2 text-sm leading-6 text-slate-600"
-        />
-        <p className="mt-3 rounded-xl bg-slate-50 p-3 text-sm font-semibold leading-6 text-slate-800">
-          {showPlanB
-            ? "Включены более короткие или крытые точки: шаги, цены и карта уже перестроены под дождь."
-            : day.planB}
-        </p>
-        {day.adultNote ? (
-          <p className="mt-3 rounded-xl bg-rose-50 p-3 text-sm font-semibold leading-6 text-rose-800">
-            {day.adultNote}
-          </p>
-        ) : null}
-      </div>
-    </section>
   );
 }
 
