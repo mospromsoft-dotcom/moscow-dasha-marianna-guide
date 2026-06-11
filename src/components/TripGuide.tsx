@@ -54,6 +54,13 @@ const priceFilters: { id: PriceLevel | "all"; label: string }[] = [
   { id: "high", label: "дорого" },
 ];
 
+const spendSizeTags: { id: PriceLevel; label: string }[] = [
+  { id: "free", label: "0 ₽" },
+  { id: "low", label: "до 1 000 ₽" },
+  { id: "mid", label: "средние траты" },
+  { id: "high", label: "дорого" },
+];
+
 const priceStyles: Record<PriceLevel, string> = {
   free: "bg-emerald-50 text-emerald-800 ring-emerald-200",
   low: "bg-cyan-50 text-cyan-800 ring-cyan-200",
@@ -455,12 +462,15 @@ export default function TripGuide() {
                   </div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {["цена совпадает", "время подходит", "дорога домой оплачена"].map((item) => (
+                  {spendSizeTags.map((tag) => (
                     <span
-                      key={item}
-                      className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-black/5"
+                      key={tag.id}
+                      className={classNames(
+                        "rounded-full px-3 py-1.5 text-xs font-semibold ring-1",
+                        priceStyles[tag.id],
+                      )}
                     >
-                      {item}
+                      {tag.label}
                     </span>
                   ))}
                 </div>
@@ -491,7 +501,7 @@ export default function TripGuide() {
                 {filteredPrices.map((item) => (
                   <div
                     key={item.title}
-                    className="grid gap-2 px-4 py-4 sm:grid-cols-[1fr_130px_1.2fr]"
+                    className="grid gap-3 px-4 py-4 sm:grid-cols-[minmax(0,0.95fr)_minmax(0,1.25fr)]"
                   >
                     <div>
                       <div className="font-semibold">{item.title}</div>
@@ -502,16 +512,6 @@ export default function TripGuide() {
                         )}
                       >
                         {priceMood[item.level].label}
-                      </span>
-                    </div>
-                    <div>
-                      <span
-                        className={classNames(
-                          "inline-flex rounded-full px-3 py-1 text-sm font-semibold ring-1",
-                          priceStyles[item.level],
-                        )}
-                      >
-                        {item.price}
                       </span>
                     </div>
                     <p className="text-sm leading-6 text-slate-600">{item.comment}</p>
