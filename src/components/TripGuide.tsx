@@ -16,14 +16,12 @@ import {
   Coins,
   ExternalLink,
   Home,
-  Info,
   ListChecks,
   Map,
   MapPin,
   Navigation,
   RefreshCcw,
   ShieldCheck,
-  Sparkles,
   Sun,
   Ticket,
   Users,
@@ -115,22 +113,6 @@ function getDefaultDayId() {
   }
 
   return tripDays[0].id;
-}
-
-function getTripStatus() {
-  const now = new Date();
-  const start = new Date(2026, 5, 15);
-  const end = new Date(2026, 5, 20);
-
-  if (now < start) {
-    return "До старта можно спокойно проверить билеты, погоду и заряд пауэрбанка.";
-  }
-
-  if (now >= end) {
-    return "Маршрут уже в архивном режиме, но подсказки и карты остаются полезными.";
-  }
-
-  return "Сегодня сайт сам держит нужный день под рукой.";
 }
 
 function routeMessage(day: TripDay) {
@@ -598,7 +580,7 @@ function Hero({
   onWeatherMode: (badWeather: boolean) => void;
 }) {
   return (
-    <header className="relative min-h-[620px] overflow-hidden bg-slate-950 text-white">
+    <header className="relative min-h-[560px] overflow-hidden bg-slate-950 text-white">
       <div className="absolute inset-0 bg-slate-900">
         <img
           src={day.heroImage}
@@ -611,13 +593,7 @@ function Hero({
       </div>
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.35),rgba(15,23,42,0.92))]" />
 
-      <div className="relative mx-auto flex min-h-[620px] max-w-7xl flex-col justify-end px-4 py-8">
-        <div className="mb-8 flex flex-wrap gap-2">
-          <Badge icon={<Sparkles className="h-4 w-4" />}>для Даши и Марианны</Badge>
-          <Badge icon={<CalendarDays className="h-4 w-4" />}>15-19 июня 2026</Badge>
-          <Badge icon={<Info className="h-4 w-4" />}>{getTripStatus()}</Badge>
-        </div>
-
+      <div className="relative mx-auto flex min-h-[560px] max-w-7xl flex-col justify-center px-4 py-10">
         <div className="max-w-4xl">
           <p className="text-sm font-semibold uppercase text-white/75">
             {day.weekday}, {day.date}
@@ -625,7 +601,7 @@ function Hero({
           <h1 className="mt-3 max-w-4xl text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-6xl">
             {day.title}
           </h1>
-          <RichText text={day.subtitle} className="mt-5 max-w-3xl space-y-3 text-base leading-7 text-white/86 sm:text-lg" />
+          <RichText text={day.subtitle} className="mt-5 max-w-3xl space-y-3 text-sm leading-6 text-white/86 sm:text-base sm:leading-7" />
         </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -678,15 +654,6 @@ function Hero({
         </div>
       </div>
     </header>
-  );
-}
-
-function Badge({ children, icon }: { children: React.ReactNode; icon: React.ReactNode }) {
-  return (
-    <span className="inline-flex min-h-10 items-center gap-2 rounded-full border border-white/20 bg-white/12 px-3 text-sm font-semibold text-white backdrop-blur">
-      {icon}
-      {children}
-    </span>
   );
 }
 
