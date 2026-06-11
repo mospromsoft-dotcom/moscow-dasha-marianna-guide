@@ -166,6 +166,51 @@ function singlePointMap(point: string) {
   };
 }
 
+function routePointsFromUrl(routeUrl: string) {
+  try {
+    const url = new URL(routeUrl);
+    const rtext = url.searchParams.get("rtext");
+
+    if (rtext) {
+      return rtext.split("~").filter(Boolean);
+    }
+
+    const point = url.searchParams.get("pt")?.split(",").slice(0, 2);
+
+    if (point?.length === 2) {
+      const [lon, lat] = point;
+      return [`${lat},${lon}`];
+    }
+  } catch {
+    return [];
+  }
+
+  return [];
+}
+
+function withCommuteStart(route: ActiveRoute, commute: CommutePlan, meetingDone: boolean): ActiveRoute {
+  if (meetingDone) {
+    return route;
+  }
+
+  const [startPoint] = routePointsFromUrl(commute.routeUrl);
+  const routePoints = routePointsFromUrl(route.routeUrl);
+
+  if (!startPoint || routePoints.length === 0) {
+    return route;
+  }
+
+  const points = routePoints[0] === startPoint ? routePoints : [startPoint, ...routePoints];
+  const routeUrl = `https://yandex.ru/maps/?rtext=${points.join("~")}&rtt=mt`;
+
+  return {
+    ...route,
+    routeUrl,
+    mapEmbedUrl: yandexEmbedFromUrl(routeUrl),
+    mapTitle: "Маршрут от Марьино",
+  };
+}
+
 function buildRemainingMap(
   steps: TripStep[],
   done: Record<string, boolean>,
@@ -367,6 +412,10 @@ export default function TripGuide() {
     showPlanB && selectedDay.planBRoute.commute ? selectedDay.planBRoute.commute : selectedDay.commute;
   const meetingKey = `${selectedDay.id}-${activeRoute.mode}-maryino-meeting`;
   const meetingDone = Boolean(done[meetingKey]);
+  const mapRoute = useMemo(
+    () => withCommuteStart(activeRoute, activeCommute, meetingDone),
+    [activeRoute, activeCommute, meetingDone],
+  );
   const completedCount = activeRoute.steps.filter((step) => done[step.id]).length;
   const progress = Math.round((completedCount / activeRoute.steps.length) * 100);
   const filteredPrices =
@@ -626,9 +675,8 @@ export default function TripGuide() {
         <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">
           <MapPanel
             day={selectedDay}
-            activeRoute={activeRoute}
+            activeRoute={mapRoute}
             showPlanB={showPlanB}
-            commute={activeCommute}
           />
           <ParentPanel
             day={selectedDay}
@@ -1010,12 +1058,10 @@ function MapPanel({
   day,
   activeRoute,
   showPlanB,
-  commute,
 }: {
   day: TripDay;
   activeRoute: ActiveRoute;
   showPlanB: boolean;
-  commute: CommutePlan;
 }) {
   return (
     <section id="map" className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
@@ -1051,10 +1097,10 @@ function MapPanel({
           Открыть
         </a>
         <a
-          href={commute.routeUrl}
+          href="https://yandex.ru/metro/moscow"
           target="_blank"
           rel="noreferrer"
-          title="Маршрут на метро и общественном транспорте от Марьино до первой точки"
+          title="Схема метро Москвы"
           className="inline-flex min-h-11 items-center justify-center rounded-xl border border-black/10 px-4 text-sm font-semibold text-slate-700 transition hover:border-[var(--accent)] hover:text-[var(--accent-dark)]"
         >
           Метро

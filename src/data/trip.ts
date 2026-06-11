@@ -103,7 +103,7 @@ const imageUrls = {
   zaryadyeOverview:
     "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Zaryadye31.jpg/960px-Zaryadye31.jpg",
   floatingBridge:
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Moscow._View_to_The_Kremlin_from_Floating_bridge_in_Zaryadye_Park.jpg/960px-Moscow._View_to_The_Kremlin_from_Floating_bridge_in_Zaryadye_Park.jpg",
+    "https://commons.wikimedia.org/wiki/Special:FilePath/Moscow._View_to_The_Kremlin_from_Floating_bridge_in_Zaryadye_Park.jpg?width=900",
   redSquare:
     "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Moscow%27s_Red_Square%2C_Moscow%2C_Russia.jpg/960px-Moscow%27s_Red_Square%2C_Moscow%2C_Russia.jpg",
   gumInterior:
