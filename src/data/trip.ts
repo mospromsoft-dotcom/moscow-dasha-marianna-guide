@@ -66,6 +66,79 @@ export type TripDay = {
 const yandexEmbed = (route: string) =>
   `https://yandex.ru/map-widget/v1/?${route.split("?")[1]}`;
 
+const imageUrls = {
+  kitayGorod:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Moscow_Metro_Kitay-Gorod_%289721802335%29.jpg/960px-Moscow_Metro_Kitay-Gorod_%289721802335%29.jpg",
+  zaryadyePark:
+    "https://upload.wikimedia.org/wikipedia/commons/9/9b/Zaryadye_Park%2C_Moscow.jpg",
+  zaryadyeGlass:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Glass_Crust_in_Zaryadye_park%2C_Moscow%2C_Russia.jpg/960px-Glass_Crust_in_Zaryadye_park%2C_Moscow%2C_Russia.jpg",
+  zaryadyeOverview:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Zaryadye31.jpg/960px-Zaryadye31.jpg",
+  floatingBridge:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Moscow._View_to_The_Kremlin_from_Floating_bridge_in_Zaryadye_Park.jpg/960px-Moscow._View_to_The_Kremlin_from_Floating_bridge_in_Zaryadye_Park.jpg",
+  redSquare:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Moscow%27s_Red_Square%2C_Moscow%2C_Russia.jpg/960px-Moscow%27s_Red_Square%2C_Moscow%2C_Russia.jpg",
+  gumInterior:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Moscow_GUM_Middle_Line_view_from_2nd_floor.jpg/960px-Moscow_GUM_Middle_Line_view_from_2nd_floor.jpg",
+  gumFacade:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Moscow_-_central_part_of_the_GUM_facade_-_details.jpg/960px-Moscow_-_central_part_of_the_GUM_facade_-_details.jpg",
+  nikolskaya:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Moscow_-_2025_-_empty_Nikolskaya_Street_in_the_morning.jpg/960px-Moscow_-_2025_-_empty_Nikolskaya_Street_in_the_morning.jpg",
+  vdnhGate:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Right_wing_of_Main_Entrance_to_VDNKh_and_pavilion_No_70_Moscow_2.jpg/960px-Right_wing_of_Main_Entrance_to_VDNKh_and_pavilion_No_70_Moscow_2.jpg",
+  vdnhFountain:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Moscow._VDNKh%2C_Fountain_Friendship_of_Nations_P5293185_2350.jpg/960px-Moscow._VDNKh%2C_Fountain_Friendship_of_Nations_P5293185_2350.jpg",
+  vdnhPavilion:
+    "https://upload.wikimedia.org/wikipedia/commons/e/e7/Moscow_VDNKh_Armenia_Pavilion_asv2018-08_img1.jpg",
+  smilePark:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Ames_room_forced_perspective.jpg/960px-Ames_room_forced_perspective.jpg",
+  moscowSun:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Moscow_Sun1.jpg/960px-Moscow_Sun1.jpg",
+  moscowSunDetail:
+    "https://s3.vdnh.ru/vdnhru/cache/2025/05/28/fbd67289742f15b40033712f434d2b42c372692f.jpeg/bce7b0e31b5293a8338f72788a90df31.webp",
+  moscowSunTrees:
+    "https://s3.vdnh.ru/vdnhru/cache/2025/10/28/7d16183031f0f70d3bb57777fafd8b04c289227d.jpg/01be8b97a0f8ee61cede22f24af123aa.webp",
+  moscowCitySkyline:
+    "https://upload.wikimedia.org/wikipedia/commons/f/f6/Moscow-City_skyline.jpg",
+  moscowCityRiver:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Moscow-City2020.jpg/960px-Moscow-City2020.jpg",
+  moscowCityAfimall:
+    "https://commons.wikimedia.org/wiki/Special:FilePath/Moscow%2C%20City%20May%202010%2003.JPG?width=900",
+  moskvarium:
+    "https://commons.wikimedia.org/wiki/Special:FilePath/Moscow%2C%20VDNKh%2C%20new%20Moskvarium%20building%20dwarfs%20the%20Michurin%20Garden%20%2831331509902%29.jpg?width=900",
+  gorkyPark:
+    "https://upload.wikimedia.org/wikipedia/commons/b/b9/Moscow_Gorky_Park_main_portal_08-2016_img1.jpg",
+  neskuchnyGarden:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Neskuchny_Garden_2016_Moscow.JPG/960px-Neskuchny_Garden_2016_Moscow.JPG",
+  sparrowView:
+    "https://commons.wikimedia.org/wiki/Special:FilePath/View%20of%20Moscow%20from%20Sparrow%20Hills%20%2831439902676%29.jpg?width=900",
+  sparrowMsu:
+    "https://commons.wikimedia.org/wiki/Special:FilePath/Moscow%20State%20University%20Sparrow%20Hills.jpg?width=900",
+  cableCar:
+    "https://upload.wikimedia.org/wikipedia/commons/6/6a/Moscow_Cable_Car.jpg",
+  illusions:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Ames_room-uk.png/960px-Ames_room-uk.png",
+  neboJump:
+    "https://nebojump.ru/storage/4652/01KT479P2ZBDACC4WDCEWQW663.webp",
+  neboClimb:
+    "https://nebojump.ru/storage/4653/01KT479P38JJBFYHBHPFKGXXRV.webp",
+  afimall:
+    "https://commons.wikimedia.org/wiki/Special:FilePath/Moscow%20Afimall%20atrium%2008-2016%20img2.jpg?width=900",
+  skazka:
+    "https://cdn.culture.ru/images/eb2e8309-ef3d-5663-95f5-f2fddd20a249/w_884,h_442,c_fill,g_center/1c280496d09bb1e2deca2b33f85e740e-jpg.webp",
+  dreamExterior:
+    "https://upload.wikimedia.org/wikipedia/commons/8/89/Island_of_Dreams2.jpg",
+  dreamPromenade:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Dream_Island_30.jpg/960px-Dream_Island_30.jpg",
+  dreamRide:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Dream_Island_amusement_park38.jpg/960px-Dream_Island_amusement_park38.jpg",
+  dreamFood:
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Dream_Island_amusement_park20.jpg/960px-Dream_Island_amusement_park20.jpg",
+  dreamOfficial:
+    "https://dreamisland.ru/upload/resize_cache/iblock/f8a/860_860_1/d5s9wzdvjwsdn33l03j7yn9xbbel40tm.jpg",
+};
+
 export const tripDays: TripDay[] = [
   {
     id: "day-15",
@@ -78,8 +151,7 @@ export const tripDays: TripDay[] = [
     accent: "#0891b2",
     accentDark: "#155e75",
     accentSoft: "#e0f7fb",
-    heroImage:
-      "https://upload.wikimedia.org/wikipedia/commons/9/9b/Zaryadye_Park%2C_Moscow.jpg",
+    heroImage: imageUrls.zaryadyePark,
     imageAlt: "Парк Зарядье и вид на центр Москвы",
     timeRange: "12:00-18:30",
     budgetShort: "0 ₽ прогулка + 300-800 ₽ на сладкое",
@@ -105,6 +177,8 @@ export const tripDays: TripDay[] = [
         detail:
           "Удобный старт: вышли из метро, сверились с картой и дальше идем пешком без сложной логистики.",
         routePoint: "55.7517,37.6295",
+        image: imageUrls.kitayGorod,
+        imageAlt: "Станция метро Китай-город",
         mapUrl:
           "https://yandex.ru/maps/?text=метро%20Китай-город%20Москва",
       },
@@ -120,9 +194,8 @@ export const tripDays: TripDay[] = [
         detail:
           "Главная дневная точка: спокойно пройти по дорожкам, поймать виды на реку и не превращать центр в бег на выживание.",
         routePoint: "55.7510,37.6288",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/9/9b/Zaryadye_Park%2C_Moscow.jpg",
-        imageAlt: "Парк Зарядье",
+        image: imageUrls.zaryadyeGlass,
+        imageAlt: "Стеклянная кора в парке Зарядье",
         mapUrl: "https://yandex.ru/maps/?text=Парк%20Зарядье%20Москва",
       },
       {
@@ -137,8 +210,7 @@ export const tripDays: TripDay[] = [
         detail:
           "Сюда идти обязательно: это бесплатная смотровая площадка с самым понятным вау-эффектом первого дня.",
         routePoint: "55.7498,37.6299",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/9/9b/Zaryadye_Park%2C_Moscow.jpg",
+        image: imageUrls.floatingBridge,
         imageAlt: "Парящий мост в Зарядье",
         mapUrl: "https://yandex.ru/maps/?text=Парящий%20мост%20Зарядье",
       },
@@ -154,6 +226,8 @@ export const tripDays: TripDay[] = [
         detail:
           "Это короткий проход ради ощущения центра, а не исторический марафон. Фото, взгляд вокруг, и идем дальше.",
         routePoint: "55.7539,37.6208",
+        image: imageUrls.redSquare,
+        imageAlt: "Красная площадь",
         mapUrl: "https://yandex.ru/maps/?text=Красная%20площадь",
       },
       {
@@ -168,6 +242,8 @@ export const tripDays: TripDay[] = [
         detail:
           "Пауза под крышей: еда, напитки, туалет, заряд моральных батареек. Покупать ничего крупного не требуется.",
         routePoint: "55.7547,37.6215",
+        image: imageUrls.gumInterior,
+        imageAlt: "Интерьер ГУМа",
         mapUrl: "https://yandex.ru/maps/?text=ГУМ%20Москва",
       },
       {
@@ -182,11 +258,13 @@ export const tripDays: TripDay[] = [
         detail:
           "Финальный красивый кусок маршрута: пройти без спешки, сделать пару фото и спокойно уйти к метро.",
         routePoint: "55.7568,37.6227",
+        image: imageUrls.nikolskaya,
+        imageAlt: "Никольская улица",
         mapUrl: "https://yandex.ru/maps/?text=Никольская%20улица%20Москва",
       },
     ],
     planBRoute: {
-      label: "Короткий центр под дождь",
+      label: "Маршрут на плохую погоду: короткий центр под дождь",
       description:
         "Оставляем Зарядье, Парящий мост и ГУМ. Меньше улицы, больше крыши, но главный вид дня не теряется.",
       routeUrl:
@@ -201,15 +279,14 @@ export const tripDays: TripDay[] = [
           title: "Зарядье без длинной петли",
           description: "Сразу идем к главному виду и не изображаем героев дождевика.",
           detail:
-            "План Б не отменяет красоту: парк компактный, а Парящий мост рядом, так что мокнуть придется меньше.",
+            "Плохая погода не отменяет красоту: парк компактный, а Парящий мост рядом, так что мокнуть придется меньше.",
           tags: ["дождь", "бесплатно", "вид"],
           guideText:
             "Зарядье удобно тем, что находится в самом центре и дает много красивых точек на маленьком расстоянии.",
           tip: "Если дождь сильный, идти коротко: верхние дорожки, мост, потом ГУМ.",
           routePoint: "55.7510,37.6288",
-          image:
-            "https://upload.wikimedia.org/wikipedia/commons/9/9b/Zaryadye_Park%2C_Moscow.jpg",
-          imageAlt: "Зарядье",
+          image: imageUrls.zaryadyePark,
+          imageAlt: "Зарядье с видом на центр",
           mapUrl: "https://yandex.ru/maps/?text=Парк%20Зарядье%20Москва",
         },
         {
@@ -224,9 +301,8 @@ export const tripDays: TripDay[] = [
             "Парящий мост хорош как быстрый вау-пункт: он рядом с парком и не требует билета.",
           tip: "Держать телефон крепко: мокрые руки и красивый кадр - дуэт сомнительный.",
           routePoint: "55.7498,37.6299",
-          image:
-            "https://upload.wikimedia.org/wikipedia/commons/9/9b/Zaryadye_Park%2C_Moscow.jpg",
-          imageAlt: "Парящий мост",
+          image: imageUrls.zaryadyeOverview,
+          imageAlt: "Зарядье и Парящий мост сверху",
           mapUrl: "https://yandex.ru/maps/?text=Парящий%20мост%20Зарядье",
         },
         {
@@ -238,9 +314,11 @@ export const tripDays: TripDay[] = [
             "Здесь можно переждать дождь без ощущения, что день провален. Главное - не проверять все магазины подряд.",
           tags: ["в помещении", "еда", "пауза"],
           guideText:
-            "ГУМ - исторический крытый пассаж, который работает как красивый и практичный план Б.",
+            "ГУМ - исторический крытый пассаж, который работает как красивый и практичный маршрут на плохую погоду.",
           tip: "Заложить бюджет на напиток или сладкое и спокойно выйти к метро.",
           routePoint: "55.7547,37.6215",
+          image: imageUrls.gumFacade,
+          imageAlt: "Фасад ГУМа",
           mapUrl: "https://yandex.ru/maps/?text=ГУМ%20Москва",
         },
       ],
@@ -296,12 +374,11 @@ export const tripDays: TripDay[] = [
     weekday: "Вторник",
     title: "ВДНХ днем и Москва-Сити вечером со взрослым",
     subtitle:
-      "Фонтаны, Smile Park, колесо обозрения и опциональный вечерний Сити без ресторанов и пафоса.",
+      "Фонтаны, Smile Park, колесо обозрения и красивейший вечерний Сити с шикарными видами.",
     accent: "#059669",
     accentDark: "#047857",
     accentSoft: "#e4f8ed",
-    heroImage:
-      "https://upload.wikimedia.org/wikipedia/commons/b/be/Moscow_Sun1.jpg",
+    heroImage: imageUrls.moscowSun,
     imageAlt: "Колесо обозрения Солнце Москвы на ВДНХ",
     timeRange: "12:00-18:30 + опция 19:15-21:00",
     budgetShort: "1 800-3 000 ₽ без Сити-смотровой",
@@ -329,9 +406,8 @@ export const tripDays: TripDay[] = [
         detail:
           "Стартуем широко и красиво: арка, аллея и первый ориентир, где все еще легко собраться, если кто-то отвлекся на фото.",
         routePoint: "55.8259,37.6371",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/e/e7/Moscow_VDNKh_Armenia_Pavilion_asv2018-08_img1.jpg",
-        imageAlt: "ВДНХ",
+        image: imageUrls.vdnhGate,
+        imageAlt: "Главный вход ВДНХ",
         mapUrl: "https://yandex.ru/maps/?text=Главный%20вход%20ВДНХ",
       },
       {
@@ -346,8 +422,7 @@ export const tripDays: TripDay[] = [
         detail:
           "Это не просто фонтан, а парадная точка ВДНХ: сюда стоит зайти даже если дальше планируется платное развлечение.",
         routePoint: "55.8297,37.6335",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/e/e7/Moscow_VDNKh_Armenia_Pavilion_asv2018-08_img1.jpg",
+        image: imageUrls.vdnhFountain,
         imageAlt: "Фонтаны ВДНХ",
         mapUrl:
           "https://yandex.ru/maps/?text=Фонтан%20Дружба%20народов%20ВДНХ",
@@ -364,6 +439,8 @@ export const tripDays: TripDay[] = [
         detail:
           "Закладываем 1,5-2 часа: не бегом, но и не на весь день. Главная цель - веселые фото и передышка от улицы.",
         routePoint: "55.8312,37.6312",
+        image: imageUrls.smilePark,
+        imageAlt: "Оптическая иллюзия для Smile Park",
         mapUrl: "https://yandex.ru/maps/?text=Smile%20Park%20ВДНХ",
       },
       {
@@ -378,8 +455,7 @@ export const tripDays: TripDay[] = [
         detail:
           "Это красивый финал ВДНХ-дня, но не обязательный пункт любой ценой: при ветре, плохой видимости или усталости можно спокойно пропустить.",
         routePoint: "55.8328,37.6225",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/b/be/Moscow_Sun1.jpg",
+        image: imageUrls.moscowSunDetail,
         imageAlt: "Солнце Москвы",
         mapUrl:
           "https://yandex.ru/maps/?text=Солнце%20Москвы%20ВДНХ",
@@ -398,15 +474,14 @@ export const tripDays: TripDay[] = [
         detail:
           "Вечерняя часть включается только если взрослый реально присоединяется. Без взрослого сайт должен считать этот шаг недоступным.",
         routePoint: "55.7498,37.5396",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/f/f6/Moscow-City_skyline.jpg",
+        image: imageUrls.moscowCitySkyline,
         imageAlt: "Москва-Сити",
         mapUrl:
           "https://yandex.ru/maps/?rtext=55.7498,37.5396~55.7475,37.5423~55.7470,37.5486&rtt=pd",
       },
     ],
     planBRoute: {
-      label: "ВДНХ под крышей: Москвариум вместо длинной прогулки",
+      label: "Маршрут на плохую погоду: ВДНХ под крышей",
       description:
         "Если дождь или усталость, оставляем ВДНХ, но уходим в Москвариум. Вечерний Москва-Сити автоматически снимается.",
       routeUrl:
@@ -421,15 +496,14 @@ export const tripDays: TripDay[] = [
           title: "ВДНХ без длинной петли",
           description: "Коротко пройти через арку и центральную часть, если дождь еще терпимый.",
           detail:
-            "План Б оставляет ощущение ВДНХ, но не заставляет проводить полдня на улице.",
+            "Маршрут на плохую погоду оставляет ощущение ВДНХ, но не заставляет проводить полдня на улице.",
           tags: ["дождь", "бесплатно"],
           guideText:
             "ВДНХ хорош тем, что рядом есть и открытые виды, и большие крытые точки.",
           tip: "Не уходить далеко от главной оси, если погода нестабильная.",
           routePoint: "55.8259,37.6371",
-          image:
-            "https://upload.wikimedia.org/wikipedia/commons/e/e7/Moscow_VDNKh_Armenia_Pavilion_asv2018-08_img1.jpg",
-          imageAlt: "ВДНХ",
+          image: imageUrls.vdnhPavilion,
+          imageAlt: "Павильон ВДНХ",
           mapUrl: "https://yandex.ru/maps/?text=Главный%20вход%20ВДНХ",
         },
         {
@@ -444,6 +518,8 @@ export const tripDays: TripDay[] = [
             "Москвариум - большой океанариум на ВДНХ с морскими и пресноводными обитателями.",
           tip: "Проверить цену и время входа перед покупкой билета.",
           routePoint: "55.8319,37.6188",
+          image: imageUrls.moskvarium,
+          imageAlt: "Москвариум на ВДНХ",
           mapUrl: "https://yandex.ru/maps/?text=Москвариум%20ВДНХ",
         },
         {
@@ -458,8 +534,7 @@ export const tripDays: TripDay[] = [
             "Колесо у ВДНХ красиво работает как финал дня, но не обязано спасать любую погоду.",
           tip: "Сначала посмотреть на небо, потом на цену, потом принимать решение.",
           routePoint: "55.8328,37.6225",
-          image:
-            "https://upload.wikimedia.org/wikipedia/commons/b/be/Moscow_Sun1.jpg",
+          image: imageUrls.moscowSunTrees,
           imageAlt: "Солнце Москвы",
           mapUrl:
             "https://yandex.ru/maps/?text=Солнце%20Москвы%20ВДНХ",
@@ -475,7 +550,7 @@ export const tripDays: TripDay[] = [
         {
           title: "Москвариум",
           price: "от 1 450 ₽",
-          comment: "Главный крытый пункт плана Б.",
+          comment: "Главный крытый пункт маршрута на плохую погоду.",
           level: "mid",
         },
         {
@@ -550,13 +625,12 @@ export const tripDays: TripDay[] = [
     accent: "#4f46e5",
     accentDark: "#3730a3",
     accentSoft: "#ecebff",
-    heroImage:
-      "https://upload.wikimedia.org/wikipedia/commons/6/6a/Moscow_Cable_Car.jpg",
+    heroImage: imageUrls.cableCar,
     imageAlt: "Московская канатная дорога",
     timeRange: "12:00-18:30",
     budgetShort: "0 ₽ прогулка + от 800 ₽ канатка",
     weather: "Около 19°C, возможен дождь после обеда",
-    takeWithYou: ["дождевик", "вода", "удобная обувь", "план Б"],
+    takeWithYou: ["дождевик", "вода", "удобная обувь", "маршрут на плохую погоду"],
     routeUrl:
       "https://yandex.ru/maps/?rtext=55.7298,37.6013~55.7199,37.5907~55.7105,37.5429~55.7156,37.5537&rtt=pd",
     mapEmbedUrl: yandexEmbed(
@@ -577,8 +651,7 @@ export const tripDays: TripDay[] = [
         detail:
           "Это спокойный старт прогулки вдоль реки. Здесь не надо успевать все: задача дня - красивые виды и нормальный темп.",
         routePoint: "55.7298,37.6013",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/b/b9/Moscow_Gorky_Park_main_portal_08-2016_img1.jpg",
+        image: imageUrls.gorkyPark,
         imageAlt: "Парк Горького",
         mapUrl: "https://yandex.ru/maps/?text=Парк%20Горького%20Москва",
       },
@@ -594,6 +667,8 @@ export const tripDays: TripDay[] = [
         detail:
           "Тенистый переход между активной частью парка и Воробьевыми. Если устали, здесь можно честно замедлиться.",
         routePoint: "55.7199,37.5907",
+        image: imageUrls.neskuchnyGarden,
+        imageAlt: "Нескучный сад",
         mapUrl: "https://yandex.ru/maps/?text=Нескучный%20сад%20Москва",
       },
       {
@@ -608,6 +683,8 @@ export const tripDays: TripDay[] = [
         detail:
           "Главная точка вида в этот день. Лучше прийти не на последних силах, иначе панорама будет соревноваться с желанием сесть.",
         routePoint: "55.7105,37.5429",
+        image: imageUrls.sparrowView,
+        imageAlt: "Вид с Воробьевых гор",
         mapUrl: "https://yandex.ru/maps/?text=Воробьевы%20горы",
       },
       {
@@ -622,15 +699,14 @@ export const tripDays: TripDay[] = [
         detail:
           "Красивый финал маршрута, если погода и очередь не спорят с планом. Если спорят - спокойно идем к метро.",
         routePoint: "55.7156,37.5537",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/6/6a/Moscow_Cable_Car.jpg",
+        image: imageUrls.cableCar,
         imageAlt: "Московская канатная дорога",
         mapUrl:
           "https://yandex.ru/maps/?text=Московская%20канатная%20дорога",
       },
     ],
     planBRoute: {
-      label: "Короче и суше: Воробьевы + Музей иллюзий",
+      label: "Маршрут на плохую погоду: Воробьевы + Музей иллюзий",
       description:
         "Если дождь приходит после обеда, не тащим весь парк до конца: оставляем видовую точку и уходим в крытый Музей иллюзий.",
       routeUrl:
@@ -651,6 +727,8 @@ export const tripDays: TripDay[] = [
             "Воробьевы горы дают широкий вид на Москву, поэтому даже короткий визит работает.",
           tip: "Не задерживаться, если склон мокрый и ветер усиливается.",
           routePoint: "55.7105,37.5429",
+          image: imageUrls.sparrowMsu,
+          imageAlt: "МГУ на Воробьевых горах",
           mapUrl: "https://yandex.ru/maps/?text=Воробьевы%20горы",
         },
         {
@@ -665,6 +743,8 @@ export const tripDays: TripDay[] = [
             "Музей иллюзий - хороший запасной пункт, когда погода мешает длинному маршруту.",
           tip: "Заранее проверить билеты и адрес, чтобы не искать вход под дождем.",
           routePoint: "55.7150,37.5515",
+          image: imageUrls.illusions,
+          imageAlt: "Оптическая иллюзия",
           mapUrl:
             "https://yandex.ru/maps/?text=Музей%20оптических%20иллюзий%20Москва%20Косыгина",
         },
@@ -700,7 +780,7 @@ export const tripDays: TripDay[] = [
       {
         title: "Музей иллюзий",
         price: "от 600 ₽",
-        comment: "Запасной крытый вариант.",
+        comment: "Запасной маршрут в помещении.",
         level: "low",
       },
     ],
@@ -731,13 +811,12 @@ export const tripDays: TripDay[] = [
     accent: "#e11d48",
     accentDark: "#be123c",
     accentSoft: "#ffe4ea",
-    heroImage:
-      "https://upload.wikimedia.org/wikipedia/commons/f/f6/Moscow-City_skyline.jpg",
+    heroImage: imageUrls.moscowCitySkyline,
     imageAlt: "Москва-Сити",
     timeRange: "12:00-18:30",
     budgetShort: "1 000-1 600 ₽ + еда",
     weather: "Около 18°C, возможны ливни",
-    takeWithYou: ["спортивная форма", "нескользящие носки", "теплый слой"],
+    takeWithYou: ["спортивная форма", "нескользящие носки", "худи или легкая куртка"],
     routeUrl:
       "https://yandex.ru/maps/?rtext=55.7438,37.5055~55.7498,37.5396&rtt=mt",
     mapEmbedUrl: yandexEmbed(
@@ -758,6 +837,8 @@ export const tripDays: TripDay[] = [
         detail:
           "Это основной пункт дня: активный, крытый и подходящий для дождя. Лучше прийти днем, пока людей меньше.",
         routePoint: "55.7438,37.5055",
+        image: imageUrls.neboJump,
+        imageAlt: "Активная зона НЕБО",
         mapUrl: "https://yandex.ru/maps/?text=НЕБО%20батутный%20парк%20Москва",
       },
       {
@@ -772,6 +853,8 @@ export const tripDays: TripDay[] = [
         detail:
           "После активной части нужен нормальный перерыв. Здесь проще поесть, высохнуть и спокойно решить, нужен ли короткий выход к башням.",
         routePoint: "55.7498,37.5396",
+        image: imageUrls.afimall,
+        imageAlt: "Афимолл",
         mapUrl: "https://yandex.ru/maps/?text=Афимолл%20Москва",
       },
       {
@@ -786,14 +869,13 @@ export const tripDays: TripDay[] = [
         detail:
           "Это не обязательная часть. Смысл четверга - не победить погоду, а провести день нормально.",
         routePoint: "55.7498,37.5396",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/f/f6/Moscow-City_skyline.jpg",
+        image: imageUrls.moscowCityRiver,
         imageAlt: "Москва-Сити",
         mapUrl: "https://yandex.ru/maps/?text=Москва-Сити",
       },
     ],
     planBRoute: {
-      label: "Полностью крытый четверг",
+      label: "Маршрут на плохую погоду: полностью крытый четверг",
       description:
         "Если льет всерьез, не выходим к башням вообще: НЕБО, еда, Афимолл и домой без мокрого героизма.",
       routeUrl:
@@ -814,6 +896,8 @@ export const tripDays: TripDay[] = [
             "НЕБО хорошо работает как дождевой центр дня: тепло, активно и понятно по правилам для 14 лет.",
           tip: "Украшения снять, телефон держать в шкафчике, носки взять правильные.",
           routePoint: "55.7438,37.5055",
+          image: imageUrls.neboClimb,
+          imageAlt: "Скалодром и активности НЕБО",
           mapUrl: "https://yandex.ru/maps/?text=НЕБО%20батутный%20парк%20Москва",
         },
         {
@@ -828,6 +912,8 @@ export const tripDays: TripDay[] = [
             "Афимолл рядом с метро и Москва-Сити, поэтому удобен как теплая база.",
           tip: "Если дождь не закончился, маршрут на этом завершается.",
           routePoint: "55.7498,37.5396",
+          image: imageUrls.moscowCityAfimall,
+          imageAlt: "Афимолл внутри",
           mapUrl: "https://yandex.ru/maps/?text=Афимолл%20Москва",
         },
       ],
@@ -886,13 +972,12 @@ export const tripDays: TripDay[] = [
     accent: "#d97706",
     accentDark: "#b45309",
     accentSoft: "#fff3d6",
-    heroImage:
-      "https://upload.wikimedia.org/wikipedia/commons/8/89/Island_of_Dreams2.jpg",
+    heroImage: imageUrls.dreamExterior,
     imageAlt: "Остров Мечты",
     timeRange: "13:00-19:00",
     budgetShort: "по выбору, Dream Island полный парк от 2 800 ₽",
     weather: "Около 16°C, прохладно, возможен утренний дождь",
-    takeWithYou: ["теплый слой", "вода", "лимит бюджета", "план по погоде"],
+    takeWithYou: ["худи или ветровка", "вода", "лимит бюджета", "план по погоде"],
     routeUrl:
       "https://yandex.ru/maps/?rtext=55.7567,37.4088~55.7634,37.4328&rtt=mt",
     mapEmbedUrl: yandexEmbed(
@@ -913,6 +998,8 @@ export const tripDays: TripDay[] = [
         detail:
           "Сухой вариант финального дня: выбрать несколько аттракционов и не превращать пятницу в гонку за 'отбить билет'.",
         routePoint: "55.7634,37.4328",
+        image: imageUrls.skazka,
+        imageAlt: "Парк развлечений Сказка",
         mapUrl: "https://yandex.ru/maps/?text=Парк%20Сказка%20Крылатское",
       },
       {
@@ -927,8 +1014,7 @@ export const tripDays: TripDay[] = [
         detail:
           "Это дождевой финал: можно погулять внутри, поесть и выбрать отдельные развлечения, не покупая полный дорогой парк автоматически.",
         routePoint: "55.6922,37.6725",
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/8/89/Island_of_Dreams2.jpg",
+        image: imageUrls.dreamPromenade,
         imageAlt: "Остров Мечты",
         mapUrl: "https://yandex.ru/maps/?text=Остров%20Мечты%20Москва",
       },
@@ -944,10 +1030,12 @@ export const tripDays: TripDay[] = [
         detail:
           "Пауза нужна, чтобы не закончить поездку фразой 'мы больше никогда никуда'. Вода и еда - тоже часть маршрута.",
         routePoint: "55.6922,37.6725",
+        image: imageUrls.dreamFood,
+        imageAlt: "Dream Island внутри",
       },
     ],
     planBRoute: {
-      label: "Крытый финал: Dream Island",
+      label: "Маршрут на плохую погоду: Dream Island",
       description:
         "Если холодно или дождливо, выбираем Dream Island: променад, еда и отдельные развлечения вместо открытого парка.",
       routeUrl:
@@ -968,8 +1056,7 @@ export const tripDays: TripDay[] = [
             "Dream Island сочетает крытый променад и платные развлечения, поэтому подходит для гибкого финала.",
           tip: "Сначала бесплатная зона, потом решение по билетам.",
           routePoint: "55.6922,37.6725",
-          image:
-            "https://upload.wikimedia.org/wikipedia/commons/8/89/Island_of_Dreams2.jpg",
+          image: imageUrls.dreamExterior,
           imageAlt: "Остров Мечты",
           mapUrl: "https://yandex.ru/maps/?text=Остров%20Мечты%20Москва",
         },
@@ -985,6 +1072,8 @@ export const tripDays: TripDay[] = [
             "Променад позволяет провести часть дня внутри без обязательного входа в парк аттракционов.",
           tip: "Отделить бесплатную прогулку от платных зон в голове и кошельке.",
           routePoint: "55.6922,37.6725",
+          image: imageUrls.dreamOfficial,
+          imageAlt: "Dream Island внутри",
           mapUrl: "https://yandex.ru/maps/?text=Остров%20Мечты%20променад",
         },
         {
@@ -999,6 +1088,8 @@ export const tripDays: TripDay[] = [
             "Отдельные развлечения удобны тем, что не заставляют брать большой билет на весь парк.",
           tip: "Сначала лимит бюджета, потом развлечения. Не наоборот.",
           routePoint: "55.6922,37.6725",
+          image: imageUrls.dreamRide,
+          imageAlt: "Аттракционы Dream Island",
           mapUrl: "https://yandex.ru/maps/?text=Остров%20Мечты%20game%20center",
         },
       ],
@@ -1108,7 +1199,7 @@ export const weatherRows = [
   {
     date: "17 июня",
     forecast: "около 19°C, возможен дождь после обеда",
-    take: "дождевик, план Б в помещении",
+    take: "дождевик, крытый маршрут при дожде",
   },
   {
     date: "18 июня",
@@ -1118,6 +1209,6 @@ export const weatherRows = [
   {
     date: "19 июня",
     forecast: "около 16°C, прохладно",
-    take: "теплый слой, крытый вариант",
+    take: "худи или ветровка, крытый маршрут при дожде",
   },
 ];

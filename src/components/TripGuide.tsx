@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Circle,
   Clock,
+  CloudRain,
   CloudSun,
   Coins,
   ExternalLink,
@@ -23,8 +24,8 @@ import {
   RefreshCcw,
   ShieldCheck,
   Sparkles,
+  Sun,
   Ticket,
-  Umbrella,
   Users,
   Wallet,
 } from "lucide-react";
@@ -176,7 +177,7 @@ function makeActiveRoute(day: TripDay, planB: boolean, done: Record<string, bool
       }
     : {
         mode: "main" as const,
-        label: "Основной маршрут",
+        label: "Маршрут на хорошую погоду",
         description: day.subtitle,
         steps: day.steps,
         prices: day.prices,
@@ -345,7 +346,7 @@ export default function TripGuide() {
         totalCount={activeRoute.steps.length}
         activeRoute={activeRoute}
         showPlanB={showPlanB}
-        onPlanB={() => setShowPlanB((value) => !value)}
+        onWeatherMode={(badWeather) => setShowPlanB(badWeather)}
       />
 
       <div className="sticky top-0 z-30 border-b border-black/10 bg-[#f7f5ef]/92 backdrop-blur-xl">
@@ -381,7 +382,11 @@ export default function TripGuide() {
             <SectionTitle
               icon={<ListChecks className="h-5 w-5" />}
               label="Маршрут"
-              title={showPlanB ? "Шаги плана Б" : "Шаги дня"}
+              title={
+                showPlanB
+                  ? "Шаги маршрута на плохую погоду"
+                  : "Шаги маршрута на хорошую погоду"
+              }
               right={`${completedCount}/${activeRoute.steps.length} готово`}
             />
             <div className="relative space-y-3">
@@ -481,11 +486,6 @@ export default function TripGuide() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="font-semibold">{row.date}</div>
-                    {row.date === selectedDay.date ? (
-                      <span className="rounded-full bg-white/80 px-2.5 py-1 text-xs font-semibold text-[var(--accent-dark)]">
-                        выбран
-                      </span>
-                    ) : null}
                   </div>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
                     {liveWeather[row.date]?.summary ?? row.forecast}
@@ -565,7 +565,7 @@ function Hero({
   totalCount,
   activeRoute,
   showPlanB,
-  onPlanB,
+  onWeatherMode,
 }: {
   day: TripDay;
   progress: number;
@@ -573,7 +573,7 @@ function Hero({
   totalCount: number;
   activeRoute: ActiveRoute;
   showPlanB: boolean;
-  onPlanB: () => void;
+  onWeatherMode: (badWeather: boolean) => void;
 }) {
   return (
     <header className="relative min-h-[620px] overflow-hidden bg-slate-950 text-white">
@@ -629,24 +629,33 @@ function Hero({
             <Navigation className="h-5 w-5" />
             Открыть маршрут
           </a>
-          <button
-            type="button"
-            onClick={onPlanB}
-            aria-pressed={showPlanB}
-            className={classNames(
-              "inline-flex min-h-12 items-center gap-2 rounded-xl border px-5 font-semibold backdrop-blur transition",
-              showPlanB
-                ? "border-white bg-white text-slate-950 shadow-lg"
-                : "border-white/30 bg-white/12 text-white hover:bg-white/20",
-            )}
-          >
-            <Umbrella className="h-5 w-5" />
-            {showPlanB ? "План Б включен" : "План Б"}
-          </button>
+          <div className="inline-flex flex-wrap gap-2 rounded-2xl border border-white/20 bg-white/12 p-1 backdrop-blur">
+            <button
+              type="button"
+              onClick={() => onWeatherMode(false)}
+              aria-pressed={!showPlanB}
+              className={classNames(
+                "inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition",
+                !showPlanB ? "bg-white text-slate-950 shadow-lg" : "text-white hover:bg-white/18",
+              )}
+            >
+              <Sun className="h-5 w-5" />
+              План на хорошую погоду
+            </button>
+            <button
+              type="button"
+              onClick={() => onWeatherMode(true)}
+              aria-pressed={showPlanB}
+              className={classNames(
+                "inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition",
+                showPlanB ? "bg-white text-slate-950 shadow-lg" : "text-white hover:bg-white/18",
+              )}
+            >
+              <CloudRain className="h-5 w-5" />
+              План на плохую погоду
+            </button>
+          </div>
         </div>
-        <p className="mt-3 max-w-2xl text-sm font-semibold text-white/78">
-          Сейчас открыт режим: {activeRoute.label}. Карта и кнопка маршрута показывают оставшиеся непройденные точки.
-        </p>
       </div>
     </header>
   );
@@ -710,16 +719,16 @@ function QuickPanel({
       </div>
       <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2 text-sm font-semibold text-[var(--accent-dark)]">
-          <Umbrella className="h-4 w-4" />
-          {showPlanB ? activeRoute.label : "План Б наготове"}
+          {showPlanB ? <CloudRain className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+          {showPlanB ? "Маршрут на плохую погоду" : "Маршрут на хорошую погоду"}
         </div>
         <p className="mt-3 text-sm leading-6 text-slate-600">
-          {showPlanB ? activeRoute.description : day.planB}
+          {showPlanB ? activeRoute.description : day.subtitle}
         </p>
         <p className="mt-3 rounded-xl bg-slate-50 p-3 text-sm font-semibold leading-6 text-slate-800">
           {showPlanB
-            ? "Включены альтернативные шаги, цены и карта. Это уже другой маршрут, а не просто плашка."
-            : "Нажми кнопку План Б наверху, если погода/очереди/усталость начинают играть против маршрута."}
+            ? "Включены более короткие или крытые точки: шаги, цены и карта уже перестроены под дождь."
+            : day.planB}
         </p>
         {day.adultNote ? (
           <p className="mt-3 rounded-xl bg-rose-50 p-3 text-sm font-semibold leading-6 text-rose-800">
@@ -869,7 +878,7 @@ function MapPanel({
         </p>
         {showPlanB ? (
           <p className="mt-2 rounded-xl bg-[var(--accent-soft)] p-3 text-sm font-semibold text-[var(--accent-dark)]">
-            План Б меняет карту, шаги и цены. Наконец-то кнопка делает вид, что работает, и действительно работает.
+            Включен маршрут на плохую погоду: меньше улицы, больше крытых или коротких точек.
           </p>
         ) : null}
       </div>
@@ -1062,8 +1071,7 @@ export function AttributionFooter() {
     <footer className="border-t border-black/10 bg-white px-4 py-8 text-center text-sm leading-6 text-slate-600">
       <div className="mx-auto max-w-3xl">
         Сайт подготовлен и разработан лично для Даши и Марианны сверх-интеллектом{" "}
-        <span className="font-semibold text-slate-950">Mega Extra Hi GPT 5.5</span>. Да, звучит серьезно. Нет,
-        музей скучных табличек сюда не попал.
+        <span className="font-semibold text-slate-950">Mega Extra Hi GPT 5.5</span>.
       </div>
       <a
         href="#"
