@@ -707,6 +707,7 @@ function Hero({
             icon={<CheckCircle2 className="h-5 w-5" />}
             label="Прогресс"
             value={`${progress}% (${completedCount}/${totalCount})`}
+            progress={progress}
           />
         </div>
 
@@ -760,11 +761,16 @@ function HeroMetric({
   icon,
   label,
   value,
+  progress,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
+  progress?: number;
 }) {
+  const clampedProgress =
+    typeof progress === "number" ? Math.min(100, Math.max(0, progress)) : undefined;
+
   return (
     <div className="min-h-[116px] rounded-2xl border border-[var(--accent)]/35 bg-white/14 p-4 shadow-lg shadow-black/10 backdrop-blur">
       <div className="flex items-center gap-2 text-sm font-semibold text-[var(--accent-soft)]">
@@ -772,6 +778,21 @@ function HeroMetric({
         {label}
       </div>
       <div className="mt-3 text-lg font-semibold leading-6">{value}</div>
+      {clampedProgress !== undefined ? (
+        <div
+          className="mt-4 h-2 overflow-hidden rounded-full bg-white/18 ring-1 ring-white/14"
+          role="progressbar"
+          aria-label="Прогресс маршрута"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={clampedProgress}
+        >
+          <div
+            className="h-full rounded-full bg-[var(--accent-soft)] shadow-[0_0_18px_var(--accent)] transition-[width] duration-500 ease-out"
+            style={{ width: `${clampedProgress}%` }}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
