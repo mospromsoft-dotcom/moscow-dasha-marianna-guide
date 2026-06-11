@@ -624,7 +624,12 @@ export default function TripGuide() {
         </div>
 
         <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">
-          <MapPanel day={selectedDay} activeRoute={activeRoute} showPlanB={showPlanB} />
+          <MapPanel
+            day={selectedDay}
+            activeRoute={activeRoute}
+            showPlanB={showPlanB}
+            commute={activeCommute}
+          />
           <ParentPanel
             day={selectedDay}
             activeRoute={activeRoute}
@@ -1005,10 +1010,12 @@ function MapPanel({
   day,
   activeRoute,
   showPlanB,
+  commute,
 }: {
   day: TripDay;
   activeRoute: ActiveRoute;
   showPlanB: boolean;
+  commute: CommutePlan;
 }) {
   return (
     <section id="map" className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
@@ -1044,10 +1051,11 @@ function MapPanel({
           Открыть
         </a>
         <a
-          href={`https://yandex.ru/maps/?text=${encodeURIComponent("метро рядом")}`}
+          href={commute.routeUrl}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-black/10 px-4 text-sm font-semibold text-slate-700 transition hover:border-[var(--accent)]"
+          title="Маршрут на метро и общественном транспорте от Марьино до первой точки"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-black/10 px-4 text-sm font-semibold text-slate-700 transition hover:border-[var(--accent)] hover:text-[var(--accent-dark)]"
         >
           Метро
         </a>
