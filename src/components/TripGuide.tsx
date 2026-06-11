@@ -671,20 +671,24 @@ function Hero({
       />
 
       <div className="relative mx-auto flex min-h-[560px] max-w-7xl flex-col justify-center px-4 py-10">
-        <div className="max-w-4xl">
+        <div className="relative isolate max-w-4xl py-1">
+          <div
+            className="pointer-events-none absolute -inset-x-4 -inset-y-5 -z-10 rounded-[2rem] bg-[linear-gradient(90deg,rgba(2,6,23,0.78),rgba(2,6,23,0.52),rgba(2,6,23,0.08))] backdrop-blur-[1px] sm:-inset-x-6 sm:-inset-y-6"
+            style={{ boxShadow: `0 24px 90px ${day.accentDark}90` }}
+          />
           <p className="text-sm font-semibold uppercase tracking-wide text-[var(--accent-soft)]">
             {day.weekday}, {day.date}
           </p>
           <h1
             className="mt-3 max-w-4xl bg-clip-text text-4xl font-semibold leading-[1.05] text-transparent sm:text-5xl lg:text-6xl"
             style={{
-              backgroundImage: `linear-gradient(90deg, #ffffff 0%, ${day.accentSoft} 50%, ${day.accent} 100%)`,
-              textShadow: "0 16px 40px rgba(0,0,0,0.32)",
+              backgroundImage: `linear-gradient(90deg, #ffffff 0%, ${day.accentSoft} 62%, #ffffff 100%)`,
+              filter: "drop-shadow(0 16px 28px rgba(0,0,0,0.42))",
             }}
           >
             {day.title}
           </h1>
-          <RichText text={day.subtitle} className="mt-5 max-w-3xl space-y-3 text-sm leading-6 text-white/86 sm:text-base sm:leading-7" />
+          <RichText text={day.subtitle} className="mt-5 max-w-3xl space-y-3 text-sm leading-6 text-white/92 sm:text-base sm:leading-7" />
         </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
