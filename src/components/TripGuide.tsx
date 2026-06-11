@@ -35,6 +35,7 @@ import {
   safetyRules,
   tripDays,
   weatherRows,
+  type BudgetPlan,
   type CommutePlan,
   type PriceLevel,
   type PriceItem,
@@ -60,12 +61,20 @@ const priceStyles: Record<PriceLevel, string> = {
   high: "bg-rose-50 text-rose-800 ring-rose-200",
 };
 
+const priceMood: Record<PriceLevel, { label: string; className: string }> = {
+  free: { label: "можно смело", className: "bg-emerald-100 text-emerald-900" },
+  low: { label: "легкая трата", className: "bg-cyan-100 text-cyan-900" },
+  mid: { label: "проверить", className: "bg-amber-100 text-amber-950" },
+  high: { label: "осторожно", className: "bg-rose-100 text-rose-900" },
+};
+
 type ActiveRoute = {
   mode: "main" | "planB";
   label: string;
   description: string;
   steps: TripStep[];
   prices: PriceItem[];
+  budgetPlan: BudgetPlan;
   routeUrl: string;
   mapEmbedUrl: string;
   mapTitle: string;
@@ -181,6 +190,7 @@ function makeActiveRoute(day: TripDay, planB: boolean, done: Record<string, bool
         description: day.planBRoute.description,
         steps: day.planBRoute.steps,
         prices: day.planBRoute.prices ?? day.prices,
+        budgetPlan: day.planBRoute.budgetPlan ?? day.budgetPlan,
         routeUrl: day.planBRoute.routeUrl,
         mapEmbedUrl: day.planBRoute.mapEmbedUrl,
       }
@@ -190,6 +200,7 @@ function makeActiveRoute(day: TripDay, planB: boolean, done: Record<string, bool
         description: day.subtitle,
         steps: day.steps,
         prices: day.prices,
+        budgetPlan: day.budgetPlan,
         routeUrl: day.routeUrl,
         mapEmbedUrl: day.mapEmbedUrl,
       };
@@ -423,10 +434,37 @@ export default function TripGuide() {
             <SectionTitle
               icon={<Wallet className="h-5 w-5" />}
               label="Бюджет"
-              title="Цены без сюрпризов"
-              right="проверить перед покупкой"
+              title="Кошелек без драмы"
+              right="сначала дорога домой"
             />
             <div className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
+              <div className="border-b border-black/10 bg-slate-50 p-4">
+                <div className="grid gap-3 md:grid-cols-3">
+                  <BudgetStat label="минимум" value={activeRoute.budgetPlan.minimum} />
+                  <BudgetStat label="комфортно" value={activeRoute.budgetPlan.comfortable} />
+                  <BudgetStat label="опасная зона" value={activeRoute.budgetPlan.caution} />
+                </div>
+                <div className="mt-3 grid gap-3 md:grid-cols-[1fr_1fr]">
+                  <div className="rounded-xl bg-white p-3 text-sm leading-6 text-slate-600 ring-1 ring-black/5">
+                    <div className="mb-1 font-semibold text-slate-950">Совет кошелька</div>
+                    {activeRoute.budgetPlan.advice}
+                  </div>
+                  <div className="rounded-xl bg-white p-3 text-sm leading-6 text-slate-600 ring-1 ring-black/5">
+                    <div className="mb-1 font-semibold text-slate-950">Дешевле и без грусти</div>
+                    {activeRoute.budgetPlan.lowCostPlan}
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {["цена совпадает", "время подходит", "дорога домой оплачена"].map((item) => (
+                    <span
+                      key={item}
+                      className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-black/5"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
               <div className="flex gap-2 overflow-x-auto border-b border-black/10 p-3">
                 {priceFilters.map((filter) => (
                   <button
@@ -455,7 +493,17 @@ export default function TripGuide() {
                     key={item.title}
                     className="grid gap-2 px-4 py-4 sm:grid-cols-[1fr_130px_1.2fr]"
                   >
-                    <div className="font-semibold">{item.title}</div>
+                    <div>
+                      <div className="font-semibold">{item.title}</div>
+                      <span
+                        className={classNames(
+                          "mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-semibold",
+                          priceMood[item.level].className,
+                        )}
+                      >
+                        {priceMood[item.level].label}
+                      </span>
+                    </div>
                     <div>
                       <span
                         className={classNames(
@@ -810,6 +858,15 @@ function RouteStepCard({
         </div>
       ) : null}
     </article>
+  );
+}
+
+function BudgetStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-white p-3 ring-1 ring-black/5">
+      <div className="text-xs font-semibold uppercase text-slate-500">{label}</div>
+      <div className="mt-1 text-sm font-semibold leading-5 text-slate-950">{value}</div>
+    </div>
   );
 }
 
