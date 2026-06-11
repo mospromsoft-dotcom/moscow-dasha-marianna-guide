@@ -116,7 +116,7 @@ function getDefaultDayId() {
 }
 
 function routeMessage(day: TripDay) {
-  return `Мы сейчас идем по маршруту: ${day.date}, ${day.title}. Следующая точка по плану отмечена в сайте. Контрольное время: ${day.timeRange}.`;
+  return `Все ок. Мы на маршруте: ${day.date}, ${day.title}. Активный план отмечен в сайте. Контрольное время: ${day.timeRange}. Если меняем маршрут из-за погоды, напишем отдельно.`;
 }
 
 function yandexEmbedFromUrl(route: string) {
@@ -857,6 +857,13 @@ function ParentPanel({
   open: boolean;
   onToggle: () => void;
 }) {
+  const statusChips = [
+    "Все ок",
+    "Переходим к следующей точке",
+    "Меняем маршрут из-за погоды",
+    "Нужен созвон",
+  ];
+
   return (
     <section className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
       <button
@@ -866,7 +873,7 @@ function ParentPanel({
       >
         <span className="flex items-center gap-2 font-semibold">
           <Users className="h-5 w-5 text-[var(--accent-dark)]" />
-          Для взрослых
+          Родительский штаб
         </span>
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
           {open ? "скрыть" : "открыть"}
@@ -875,12 +882,28 @@ function ParentPanel({
       {open ? (
         <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
           <p>
-            Маршрут дня: <span className="font-semibold text-slate-950">{day.title}</span>.
-            Активный режим: <span className="font-semibold text-slate-950">{activeRoute.label}</span>.
+            Чтобы взрослые не активировали режим “а где вы вообще?”, здесь лежит короткий статус дня.
           </p>
-          <p>Контрольное время: {day.timeRange}. Цены, погоду и билеты проверить утром.</p>
+          <div className="flex flex-wrap gap-2">
+            {statusChips.map((status) => (
+              <span
+                key={status}
+                className="rounded-full bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-semibold text-[var(--accent-dark)]"
+              >
+                {status}
+              </span>
+            ))}
+          </div>
           <div className="rounded-xl bg-slate-50 p-3">
-            <div className="mb-2 font-semibold text-slate-950">Шаблон сообщения</div>
+            <div className="mb-1 font-semibold text-slate-950">Сегодня</div>
+            <p>
+              <span className="font-semibold text-slate-950">{day.title}</span>. Активный режим:{" "}
+              <span className="font-semibold text-slate-950">{activeRoute.label}</span>.
+            </p>
+            <p className="mt-2">Контрольное время: {day.timeRange}. Цены, погоду и билеты проверить утром.</p>
+          </div>
+          <div className="rounded-xl bg-slate-50 p-3">
+            <div className="mb-2 font-semibold text-slate-950">Сообщение родителям</div>
             {routeMessage(day)}
           </div>
           {day.adultNote ? (
