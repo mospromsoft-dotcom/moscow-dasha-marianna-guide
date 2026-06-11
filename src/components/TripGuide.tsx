@@ -82,6 +82,28 @@ function classNames(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(" ");
 }
 
+function renderRichTextParts(text: string) {
+  return text.split(/(<s>.*?<\/s>)/g).map((part, index) => {
+    const strikeMatch = part.match(/^<s>(.*)<\/s>$/);
+
+    if (strikeMatch) {
+      return <s key={`${part}-${index}`}>{strikeMatch[1]}</s>;
+    }
+
+    return <span key={`${part}-${index}`}>{part}</span>;
+  });
+}
+
+function RichText({ text, className }: { text: string; className: string }) {
+  return (
+    <div className={classNames(className, "whitespace-pre-line")}>
+      {text.split(/\n{2,}/).map((paragraph, index) => (
+        <p key={`${paragraph}-${index}`}>{renderRichTextParts(paragraph)}</p>
+      ))}
+    </div>
+  );
+}
+
 function getDefaultDayId() {
   const now = new Date();
   const year = now.getFullYear();
@@ -603,9 +625,7 @@ function Hero({
           <h1 className="mt-3 max-w-4xl text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-6xl">
             {day.title}
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-white/86 sm:text-lg">
-            {day.subtitle}
-          </p>
+          <RichText text={day.subtitle} className="mt-5 max-w-3xl space-y-3 text-base leading-7 text-white/86 sm:text-lg" />
         </div>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -722,9 +742,10 @@ function QuickPanel({
           {showPlanB ? <CloudRain className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
           {showPlanB ? "Маршрут на плохую погоду" : "Маршрут на хорошую погоду"}
         </div>
-        <p className="mt-3 text-sm leading-6 text-slate-600">
-          {showPlanB ? activeRoute.description : day.subtitle}
-        </p>
+        <RichText
+          text={showPlanB ? activeRoute.description : day.subtitle}
+          className="mt-3 space-y-2 text-sm leading-6 text-slate-600"
+        />
         <p className="mt-3 rounded-xl bg-slate-50 p-3 text-sm font-semibold leading-6 text-slate-800">
           {showPlanB
             ? "Включены более короткие или крытые точки: шаги, цены и карта уже перестроены под дождь."
