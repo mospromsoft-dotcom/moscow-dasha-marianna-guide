@@ -37,6 +37,7 @@ import {
   tripDays,
   weatherRows,
   type PriceLevel,
+  type PriceItem,
   type TripDay,
   type TripStep,
 } from "@/data/trip";
@@ -57,6 +58,23 @@ const priceStyles: Record<PriceLevel, string> = {
   low: "bg-cyan-50 text-cyan-800 ring-cyan-200",
   mid: "bg-amber-50 text-amber-900 ring-amber-200",
   high: "bg-rose-50 text-rose-800 ring-rose-200",
+};
+
+type ActiveRoute = {
+  mode: "main" | "planB";
+  label: string;
+  description: string;
+  steps: TripStep[];
+  prices: PriceItem[];
+  routeUrl: string;
+  mapEmbedUrl: string;
+  mapTitle: string;
+};
+
+type LiveWeatherRow = {
+  date: string;
+  summary: string;
+  updatedAt: string;
 };
 
 function classNames(...values: Array<string | false | null | undefined>) {
@@ -96,6 +114,104 @@ function routeMessage(day: TripDay) {
   return `Мы сейчас идем по маршруту: ${day.date}, ${day.title}. Следующая точка по плану отмечена в сайте. Контрольное время: ${day.timeRange}.`;
 }
 
+function yandexEmbedFromUrl(route: string) {
+  return `https://yandex.ru/map-widget/v1/?${route.split("?")[1] ?? ""}`;
+}
+
+function singlePointMap(point: string) {
+  const [lat, lon] = point.split(",");
+  const pointParam = `${lon},${lat},pm2rdm`;
+
+  return {
+    routeUrl: `https://yandex.ru/maps/?ll=${lon},${lat}&z=15&pt=${pointParam}`,
+    mapEmbedUrl: `https://yandex.ru/map-widget/v1/?ll=${lon},${lat}&z=15&pt=${pointParam}`,
+  };
+}
+
+function buildRemainingMap(
+  steps: TripStep[],
+  done: Record<string, boolean>,
+  fallbackRouteUrl: string,
+  fallbackMapEmbedUrl: string,
+) {
+  const remainingPoints = steps
+    .filter((step) => !done[step.id] && step.routePoint)
+    .map((step) => step.routePoint as string);
+
+  if (remainingPoints.length >= 2) {
+    const rtt = new URL(fallbackRouteUrl).searchParams.get("rtt") ?? "pd";
+    const routeUrl = `https://yandex.ru/maps/?rtext=${remainingPoints.join("~")}&rtt=${rtt}`;
+
+    return {
+      routeUrl,
+      mapEmbedUrl: yandexEmbedFromUrl(routeUrl),
+      mapTitle: "Оставшийся маршрут",
+    };
+  }
+
+  if (remainingPoints.length === 1) {
+    return {
+      ...singlePointMap(remainingPoints[0]),
+      mapTitle: "Следующая точка",
+    };
+  }
+
+  return {
+    routeUrl: fallbackRouteUrl,
+    mapEmbedUrl: fallbackMapEmbedUrl,
+    mapTitle: "Маршрут выполнен",
+  };
+}
+
+function makeActiveRoute(day: TripDay, planB: boolean, done: Record<string, boolean>): ActiveRoute {
+  const base = planB
+    ? {
+        mode: "planB" as const,
+        label: day.planBRoute.label,
+        description: day.planBRoute.description,
+        steps: day.planBRoute.steps,
+        prices: day.planBRoute.prices ?? day.prices,
+        routeUrl: day.planBRoute.routeUrl,
+        mapEmbedUrl: day.planBRoute.mapEmbedUrl,
+      }
+    : {
+        mode: "main" as const,
+        label: "Основной маршрут",
+        description: day.subtitle,
+        steps: day.steps,
+        prices: day.prices,
+        routeUrl: day.routeUrl,
+        mapEmbedUrl: day.mapEmbedUrl,
+      };
+
+  const remainingMap = buildRemainingMap(base.steps, done, base.routeUrl, base.mapEmbedUrl);
+
+  return {
+    ...base,
+    ...remainingMap,
+  };
+}
+
+function weatherCodeText(code: number) {
+  if (code === 0) return "ясно";
+  if ([1, 2, 3].includes(code)) return "переменная облачность";
+  if ([45, 48].includes(code)) return "туман";
+  if ([51, 53, 55, 56, 57].includes(code)) return "морось";
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return "дождь";
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "снег";
+  if ([95, 96, 99].includes(code)) return "гроза";
+  return "прогноз";
+}
+
+function formatWeatherUpdate(value: string) {
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
 export default function TripGuide() {
   const [selectedDayId, setSelectedDayId] = useState(() => {
     if (typeof window === "undefined") {
@@ -123,6 +239,9 @@ export default function TripGuide() {
   const [priceFilter, setPriceFilter] = useState<PriceLevel | "all">("all");
   const [showPlanB, setShowPlanB] = useState(false);
   const [showParentPanel, setShowParentPanel] = useState(false);
+  const [liveWeather, setLiveWeather] = useState<Record<string, LiveWeatherRow>>({});
+  const [weatherUpdatedAt, setWeatherUpdatedAt] = useState<string | null>(null);
+  const [weatherError, setWeatherError] = useState<string | null>(null);
 
   useEffect(() => {
     window.localStorage.setItem(activeDayStorageKey, selectedDayId);
@@ -132,17 +251,84 @@ export default function TripGuide() {
     window.localStorage.setItem(progressStorageKey, JSON.stringify(done));
   }, [done]);
 
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadWeather() {
+      try {
+        const response = await fetch(
+          "https://api.open-meteo.com/v1/forecast?latitude=55.7558&longitude=37.6173&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=Europe%2FMoscow&start_date=2026-06-15&end_date=2026-06-19",
+          { signal: controller.signal },
+        );
+
+        if (!response.ok) {
+          throw new Error("weather response is not ok");
+        }
+
+        const data = (await response.json()) as {
+          daily?: {
+            time?: string[];
+            weather_code?: number[];
+            temperature_2m_max?: number[];
+            temperature_2m_min?: number[];
+            precipitation_probability_max?: number[];
+            precipitation_sum?: number[];
+          };
+        };
+
+        const rows: Record<string, LiveWeatherRow> = {};
+        const times = data.daily?.time ?? [];
+        times.forEach((isoDate, index) => {
+          const date = new Date(`${isoDate}T12:00:00+03:00`);
+          const label = new Intl.DateTimeFormat("ru-RU", {
+            day: "numeric",
+            month: "long",
+          }).format(date);
+          const max = data.daily?.temperature_2m_max?.[index];
+          const min = data.daily?.temperature_2m_min?.[index];
+          const rain = data.daily?.precipitation_probability_max?.[index];
+          const precipitation = data.daily?.precipitation_sum?.[index];
+          const code = data.daily?.weather_code?.[index] ?? -1;
+
+          rows[label] = {
+            date: label,
+            summary: `${weatherCodeText(code)}, ${Math.round(min ?? 0)}-${Math.round(
+              max ?? 0,
+            )}°C, дождь ${Math.round(rain ?? 0)}%, осадки ${precipitation ?? 0} мм`,
+            updatedAt: new Date().toISOString(),
+          };
+        });
+
+        setLiveWeather(rows);
+        setWeatherUpdatedAt(new Date().toISOString());
+        setWeatherError(null);
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          setWeatherError("live-прогноз не загрузился, показываем запасные заметки");
+        }
+      }
+    }
+
+    void loadWeather();
+
+    return () => controller.abort();
+  }, []);
+
   const selectedDay = useMemo(
     () => tripDays.find((day) => day.id === selectedDayId) ?? tripDays[0],
     [selectedDayId],
   );
 
-  const completedCount = selectedDay.steps.filter((step) => done[step.id]).length;
-  const progress = Math.round((completedCount / selectedDay.steps.length) * 100);
+  const activeRoute = useMemo(
+    () => makeActiveRoute(selectedDay, showPlanB, done),
+    [selectedDay, showPlanB, done],
+  );
+  const completedCount = activeRoute.steps.filter((step) => done[step.id]).length;
+  const progress = Math.round((completedCount / activeRoute.steps.length) * 100);
   const filteredPrices =
     priceFilter === "all"
-      ? selectedDay.prices
-      : selectedDay.prices.filter((item) => item.level === priceFilter);
+      ? activeRoute.prices
+      : activeRoute.prices.filter((item) => item.level === priceFilter);
 
   const accentVars = {
     "--accent": selectedDay.accent,
@@ -156,6 +342,9 @@ export default function TripGuide() {
         day={selectedDay}
         progress={progress}
         completedCount={completedCount}
+        totalCount={activeRoute.steps.length}
+        activeRoute={activeRoute}
+        showPlanB={showPlanB}
         onPlanB={() => setShowPlanB((value) => !value)}
       />
 
@@ -186,17 +375,17 @@ export default function TripGuide() {
 
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 pb-28 lg:grid-cols-[minmax(0,1fr)_390px]">
         <div className="space-y-6">
-          <QuickPanel day={selectedDay} showPlanB={showPlanB} />
+          <QuickPanel day={selectedDay} activeRoute={activeRoute} showPlanB={showPlanB} />
 
           <section id="route" className="space-y-4">
             <SectionTitle
               icon={<ListChecks className="h-5 w-5" />}
               label="Маршрут"
-              title="Шаги дня"
-              right={`${completedCount}/${selectedDay.steps.length} готово`}
+              title={showPlanB ? "Шаги плана Б" : "Шаги дня"}
+              right={`${completedCount}/${activeRoute.steps.length} готово`}
             />
             <div className="relative space-y-3">
-              {selectedDay.steps.map((step, index) => (
+              {activeRoute.steps.map((step, index) => (
                 <RouteStepCard
                   key={step.id}
                   day={selectedDay}
@@ -273,13 +462,34 @@ export default function TripGuide() {
               icon={<CloudSun className="h-5 w-5" />}
               label="Погода"
               title="Что взять"
-              right="перепроверить утром"
+              right={
+                weatherUpdatedAt
+                  ? `обновлено ${formatWeatherUpdate(weatherUpdatedAt)}`
+                  : weatherError ?? "загружаем live-прогноз"
+              }
             />
             <div className="grid gap-3 md:grid-cols-2">
               {weatherRows.map((row) => (
-                <div key={row.date} className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
-                  <div className="font-semibold">{row.date}</div>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{row.forecast}</p>
+                <div
+                  key={row.date}
+                  className={classNames(
+                    "rounded-2xl border p-4 shadow-sm transition",
+                    row.date === selectedDay.date
+                      ? "border-[var(--accent)] bg-[var(--accent-soft)]"
+                      : "border-black/10 bg-white",
+                  )}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="font-semibold">{row.date}</div>
+                    {row.date === selectedDay.date ? (
+                      <span className="rounded-full bg-white/80 px-2.5 py-1 text-xs font-semibold text-[var(--accent-dark)]">
+                        выбран
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    {liveWeather[row.date]?.summary ?? row.forecast}
+                  </p>
                   <p className="mt-3 flex items-start gap-2 text-sm font-semibold text-slate-900">
                     <Backpack className="mt-0.5 h-4 w-4 text-[var(--accent-dark)]" />
                     {row.take}
@@ -332,9 +542,10 @@ export default function TripGuide() {
         </div>
 
         <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">
-          <MapPanel day={selectedDay} />
+          <MapPanel day={selectedDay} activeRoute={activeRoute} showPlanB={showPlanB} />
           <ParentPanel
             day={selectedDay}
+            activeRoute={activeRoute}
             open={showParentPanel}
             onToggle={() => setShowParentPanel((value) => !value)}
           />
@@ -351,11 +562,17 @@ function Hero({
   day,
   progress,
   completedCount,
+  totalCount,
+  activeRoute,
+  showPlanB,
   onPlanB,
 }: {
   day: TripDay;
   progress: number;
   completedCount: number;
+  totalCount: number;
+  activeRoute: ActiveRoute;
+  showPlanB: boolean;
   onPlanB: () => void;
 }) {
   return (
@@ -398,13 +615,13 @@ function Hero({
           <HeroMetric
             icon={<CheckCircle2 className="h-5 w-5" />}
             label="Прогресс"
-            value={`${progress}% (${completedCount}/${day.steps.length})`}
+            value={`${progress}% (${completedCount}/${totalCount})`}
           />
         </div>
 
         <div className="mt-7 flex flex-wrap gap-3">
           <a
-            href={day.routeUrl}
+            href={activeRoute.routeUrl}
             target="_blank"
             rel="noreferrer"
             className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-white px-5 font-semibold text-slate-950 shadow-lg transition hover:bg-slate-100"
@@ -415,12 +632,21 @@ function Hero({
           <button
             type="button"
             onClick={onPlanB}
-            className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/30 bg-white/12 px-5 font-semibold text-white backdrop-blur transition hover:bg-white/20"
+            aria-pressed={showPlanB}
+            className={classNames(
+              "inline-flex min-h-12 items-center gap-2 rounded-xl border px-5 font-semibold backdrop-blur transition",
+              showPlanB
+                ? "border-white bg-white text-slate-950 shadow-lg"
+                : "border-white/30 bg-white/12 text-white hover:bg-white/20",
+            )}
           >
             <Umbrella className="h-5 w-5" />
-            План Б
+            {showPlanB ? "План Б включен" : "План Б"}
           </button>
         </div>
+        <p className="mt-3 max-w-2xl text-sm font-semibold text-white/78">
+          Сейчас открыт режим: {activeRoute.label}. Карта и кнопка маршрута показывают оставшиеся непройденные точки.
+        </p>
       </div>
     </header>
   );
@@ -455,7 +681,15 @@ function HeroMetric({
   );
 }
 
-function QuickPanel({ day, showPlanB }: { day: TripDay; showPlanB: boolean }) {
+function QuickPanel({
+  day,
+  activeRoute,
+  showPlanB,
+}: {
+  day: TripDay;
+  activeRoute: ActiveRoute;
+  showPlanB: boolean;
+}) {
   return (
     <section className="grid gap-4 md:grid-cols-[1fr_1fr]">
       <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
@@ -477,9 +711,16 @@ function QuickPanel({ day, showPlanB }: { day: TripDay; showPlanB: boolean }) {
       <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2 text-sm font-semibold text-[var(--accent-dark)]">
           <Umbrella className="h-4 w-4" />
-          {showPlanB ? "План Б включен" : "План Б наготове"}
+          {showPlanB ? activeRoute.label : "План Б наготове"}
         </div>
-        <p className="mt-3 text-sm leading-6 text-slate-600">{day.planB}</p>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          {showPlanB ? activeRoute.description : day.planB}
+        </p>
+        <p className="mt-3 rounded-xl bg-slate-50 p-3 text-sm font-semibold leading-6 text-slate-800">
+          {showPlanB
+            ? "Включены альтернативные шаги, цены и карта. Это уже другой маршрут, а не просто плашка."
+            : "Нажми кнопку План Б наверху, если погода/очереди/усталость начинают играть против маршрута."}
+        </p>
         {day.adultNote ? (
           <p className="mt-3 rounded-xl bg-rose-50 p-3 text-sm font-semibold leading-6 text-rose-800">
             {day.adultNote}
@@ -503,9 +744,28 @@ function RouteStepCard({
   done: boolean;
   onToggle: () => void;
 }) {
+  const image = step.image ?? day.heroImage;
+  const imageAlt = step.imageAlt ?? step.title;
+
   return (
     <article className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm sm:p-5">
-      <div className="flex gap-4">
+      <div className="grid gap-4 md:grid-cols-[168px_1fr]">
+        <div className="relative min-h-36 overflow-hidden rounded-xl bg-slate-100 md:min-h-full">
+          <img
+            src={image}
+            alt={imageAlt}
+            className="h-full min-h-36 w-full object-cover"
+            loading="lazy"
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
+          />
+          <div className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-slate-800 shadow-sm">
+            {step.time}
+          </div>
+        </div>
+
+        <div className="flex gap-4">
         <button
           type="button"
           onClick={onToggle}
@@ -536,6 +796,9 @@ function RouteStepCard({
             <div>
               <h3 className="text-xl font-semibold">{step.title}</h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">{step.description}</p>
+              {step.detail ? (
+                <p className="mt-2 text-sm leading-6 text-slate-700">{step.detail}</p>
+              ) : null}
             </div>
             {step.mapUrl ? (
               <a
@@ -570,6 +833,7 @@ function RouteStepCard({
             </p>
           </details>
         </div>
+        </div>
       </div>
       {done ? (
         <div
@@ -583,7 +847,15 @@ function RouteStepCard({
   );
 }
 
-function MapPanel({ day }: { day: TripDay }) {
+function MapPanel({
+  day,
+  activeRoute,
+  showPlanB,
+}: {
+  day: TripDay;
+  activeRoute: ActiveRoute;
+  showPlanB: boolean;
+}) {
   return (
     <section id="map" className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
       <div className="p-4">
@@ -591,18 +863,25 @@ function MapPanel({ day }: { day: TripDay }) {
           <Map className="h-4 w-4" />
           Яндекс.Карта
         </div>
-        <h2 className="mt-2 text-xl font-semibold">{day.date}</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-600">{day.title}</p>
+        <h2 className="mt-2 text-xl font-semibold">{activeRoute.mapTitle}</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          {day.date}: {activeRoute.label}
+        </p>
+        {showPlanB ? (
+          <p className="mt-2 rounded-xl bg-[var(--accent-soft)] p-3 text-sm font-semibold text-[var(--accent-dark)]">
+            План Б меняет карту, шаги и цены. Наконец-то кнопка делает вид, что работает, и действительно работает.
+          </p>
+        ) : null}
       </div>
       <iframe
-        title={`Карта маршрута ${day.date}`}
-        src={day.mapEmbedUrl}
+        title={`Карта маршрута ${day.date}: ${activeRoute.label}`}
+        src={activeRoute.mapEmbedUrl}
         className="h-[360px] w-full border-0"
         loading="lazy"
       />
       <div className="flex gap-2 p-4">
         <a
-          href={day.routeUrl}
+          href={activeRoute.routeUrl}
           target="_blank"
           rel="noreferrer"
           className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--accent-dark)] px-4 text-sm font-semibold text-white transition hover:brightness-110"
@@ -625,10 +904,12 @@ function MapPanel({ day }: { day: TripDay }) {
 
 function ParentPanel({
   day,
+  activeRoute,
   open,
   onToggle,
 }: {
   day: TripDay;
+  activeRoute: ActiveRoute;
   open: boolean;
   onToggle: () => void;
 }) {
@@ -651,6 +932,7 @@ function ParentPanel({
         <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
           <p>
             Маршрут дня: <span className="font-semibold text-slate-950">{day.title}</span>.
+            Активный режим: <span className="font-semibold text-slate-950">{activeRoute.label}</span>.
           </p>
           <p>Контрольное время: {day.timeRange}. Цены, погоду и билеты проверить утром.</p>
           <div className="rounded-xl bg-slate-50 p-3">
