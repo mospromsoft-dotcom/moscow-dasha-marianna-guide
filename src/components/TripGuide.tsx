@@ -419,6 +419,17 @@ export default function TripGuide() {
 
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 pb-28 lg:grid-cols-[minmax(0,1fr)_390px]">
         <div className="space-y-6">
+          <CommutePanel
+            commute={activeCommute}
+            meetingDone={meetingDone}
+            onToggleMeeting={() =>
+              setDone((current) => ({
+                ...current,
+                [meetingKey]: !current[meetingKey],
+              }))
+            }
+          />
+
           <section id="route" className="space-y-4">
             <SectionTitle
               icon={<ListChecks className="h-5 w-5" />}
@@ -532,17 +543,6 @@ export default function TripGuide() {
               </div>
             </div>
           </section>
-
-          <CommutePanel
-            commute={activeCommute}
-            meetingDone={meetingDone}
-            onToggleMeeting={() =>
-              setDone((current) => ({
-                ...current,
-                [meetingKey]: !current[meetingKey],
-              }))
-            }
-          />
 
           <section id="weather" className="space-y-4">
             <SectionTitle
