@@ -465,7 +465,7 @@ export default function TripGuide() {
               icon={<Wallet className="h-5 w-5" />}
               label="Бюджет"
               title="Кошелек без драмы"
-              right="сначала дорога домой"
+              right="привет родителям"
             />
             <div className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
               <div className="border-b border-black/10 bg-slate-50 p-4">
@@ -585,7 +585,7 @@ export default function TripGuide() {
             <SectionTitle
               icon={<ShieldCheck className="h-5 w-5" />}
               label="Спокойствие"
-              title="Правила без паники"
+              title="Правила безопасности"
               right="коротко и по делу"
             />
             <div className="grid gap-4 md:grid-cols-2">
@@ -598,7 +598,7 @@ export default function TripGuide() {
             <SectionTitle
               icon={<RefreshCcw className="h-5 w-5" />}
               label="Замены"
-              title="Если хочется иначе"
+              title="Альтернативные истории"
               right="а почему бы и да?"
             />
             <div className="grid gap-4 md:grid-cols-3">
