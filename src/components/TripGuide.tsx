@@ -587,7 +587,7 @@ export default function TripGuide() {
               icon={<RefreshCcw className="h-5 w-5" />}
               label="Замены"
               title="Если хочется иначе"
-              right="без взрослой программы"
+              right="а почему бы и да?"
             />
             <div className="grid gap-4 md:grid-cols-3">
               {quickAlternatives.map((item) => (
