@@ -147,19 +147,19 @@ const heroTitleArt: Record<string, { src: string; alt: string }> = {
     alt: "Зарядье и Парящий мост. центр без суеты",
   },
   "day-16": {
-    src: "/hero-titles/vdnh-city-title.webp",
+    src: "/hero-titles/vdnh-city-title-muted-v2.webp",
     alt: "ВДНХ и Москва-Сити. фонтаны днем, огни вечером",
   },
   "day-17": {
-    src: "/hero-titles/gorky-sparrow-title.webp",
+    src: "/hero-titles/gorky-sparrow-title-muted-v2.webp",
     alt: "Парк Горького и Воробьевы горы. река, воздух и канатка",
   },
   "day-18": {
-    src: "/hero-titles/nebo-afimall-title.webp",
+    src: "/hero-titles/nebo-afimall-title-muted-v2.webp",
     alt: "НЕБО и Афимолл. смотрим по погоде",
   },
   "day-19": {
-    src: "/hero-titles/skazka-dream-title.webp",
+    src: "/hero-titles/skazka-dream-title-muted-v2.webp",
     alt: "Сказка или Dream Island. финальный выбор",
   },
 };
