@@ -143,7 +143,7 @@ const stepBrochures: Record<string, StepBrochure> = {
 
 const heroTitleArt: Record<string, { src: string; alt: string }> = {
   "day-15": {
-    src: "/hero-titles/zaryadye-title.webp",
+    src: "/hero-titles/zaryadye-title-muted-v2.webp",
     alt: "Зарядье и Парящий мост. центр без суеты",
   },
   "day-16": {
